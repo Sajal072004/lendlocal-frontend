@@ -86,3 +86,26 @@ export function useUserFollowers(userId: string) {
     mutate,
   };
 }
+
+// ... existing hooks
+import { getMyBorrowingHistory, getMyLendingHistory, getMyFollowers, getMyFollowing } from './apiService';
+
+export function useMyBorrowingHistory() {
+  const { data, error, isLoading, mutate } = useSWR('/users/history/borrowed', getMyBorrowingHistory);
+  return { history: data, isLoading, isError: error, mutate };
+}
+
+export function useMyLendingHistory() {
+  const { data, error, isLoading, mutate } = useSWR('/users/history/lent', getMyLendingHistory);
+  return { items: data, isLoading, isError: error, mutate };
+}
+
+export function useMyFollowers(userId: string | undefined) {
+    const { data, error, isLoading, mutate } = useSWR(userId ? `/users/${userId}/followers` : null, () => getMyFollowers(userId!));
+    return { followers: data, isLoading, isError: error, mutate };
+}
+
+export function useMyFollowing(userId: string | undefined) {
+    const { data, error, isLoading, mutate } = useSWR(userId ? `/users/${userId}/following` : null, () => getMyFollowing(userId!));
+    return { following: data, isLoading, isError: error, mutate };
+}

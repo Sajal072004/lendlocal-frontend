@@ -3,6 +3,7 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { IUser } from '@/lib/types';
 
 // Define a specific type for login/register credentials
 interface LoginCredentials {
@@ -19,23 +20,18 @@ interface RegisterCredentials extends LoginCredentials {
   name: string;
 }
 
-// Define the type for our User object
-interface User {
-  profilePicture: string | Blob | undefined;
-  _id: string;
-  name: string;
-  email: string;
-}
+
 
 // Update the context type to include the register function
 interface AuthContextType {
-  user: User | null;
+  user: IUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<{ success: boolean; message: string }>; // Add register
   verifyOtp: (credentials: OtpCredentials) => Promise<void>; 
   logout: () => Promise<void>;
+  checkSession: () => Promise<void>; // Add checkSession for re-fetching user data
 }
 
 // Create the context with a default value of 'undefined'
@@ -43,7 +39,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Create the Provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -95,7 +91,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const value = { user, isAuthenticated: !!user, isLoading, login, register, verifyOtp, logout };
+  const checkSession = async () => {
+    try {
+      const response = await api.get('/auth/session');
+      if (response.data.user) {
+        setUser(response.data.user);
+      }
+    } catch (error) {
+      setUser(null);
+    }
+  };
+
+  const value = { user, isAuthenticated: !!user, isLoading, login, register, verifyOtp, logout, checkSession };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

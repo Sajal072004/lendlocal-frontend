@@ -1,32 +1,52 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useUserProfile, useUserLentItems, useUserFollowers } from '@/lib/hooks';
+import { useUserProfile, useUserLentItems, useUserFollowers, useMyFollowing } from '@/lib/hooks';
 import { useAuth } from '@/context/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ItemCard } from '@/components/ItemCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, Users, Package, Calendar } from 'lucide-react';
+import { Star, Users, Package, Calendar, MapPin, UserPlus } from 'lucide-react';
 import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
 
 export default function UserProfilePage() {
   const params = useParams();
   const userId = params.id as string;
   const { user: currentUser } = useAuth();
 
-  const { profile, isLoading: isLoadingProfile } = useUserProfile(userId);
+  const { profile, isLoading: isLoadingProfile, mutate: mutateProfile } = useUserProfile(userId);
   const { items, isLoading: isLoadingItems } = useUserLentItems(userId);
-  const { followers, isLoading: isLoadingFollowers } = useUserFollowers(userId);
+  const { followers, isLoading: isLoadingFollowers, mutate: mutateFollowers } = useUserFollowers(userId);
+  const { following, isLoading: isLoadingFollowing } = useMyFollowing(currentUser?._id?.toString()); // Check if current user is following this person
+
+  // State for follow button
+  const [isFollowing, setIsFollowing] = useState(false);
+  
+  // Logic to determine if the current user is already following this profile
+  useEffect(() => {
+      if (followers && currentUser) {
+          setIsFollowing(followers.some(f => f.follower._id.toString() === currentUser._id?.toString()));
+      }
+  }, [followers, currentUser]);
+
 
   const getInitials = (name: string | undefined) => {
     if (!name) return '';
-    if(name === undefined) return '';
-    const names = name?.split(' ');
+    const names = name.split(' ');
     if (names.length > 1) return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
     return name.substring(0, 2).toUpperCase();
   };
+
+  const handleFollow = async () => {
+      // Add API call to follow/unfollow and then mutate SWR data
+      // For now, we'll just toggle the state for UI purposes
+      setIsFollowing(!isFollowing);
+      // await followUser(userId);
+      // mutateFollowers(); 
+  }
 
   if (isLoadingProfile) {
     return (
@@ -51,7 +71,36 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="bg-muted/40">
+    <div className="bg-muted/40 min-h-screen">
+       {/* Profile Header */}
+       <div className="bg-background border-b">
+           <div className="container mx-auto py-8">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8">
+                    <Avatar className="h-28 w-28 md:h-36 md:w-36 border-4 shadow-lg">
+                    <AvatarImage src={profile.profilePicture} alt={profile.name} />
+                    <AvatarFallback className="text-5xl">{getInitials(profile.name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-grow text-center md:text-left pt-4">
+                    <h1 className="text-4xl font-bold tracking-tight">{profile.name}</h1>
+                    <div className="flex items-center justify-center md:justify-start gap-2 mt-2 text-muted-foreground">
+                        <MapPin className="h-4 w-4" />
+                        <span>{profile.address?.city || 'Location not set'}, {profile.address?.state}</span>
+                    </div>
+                    <div className="flex items-center justify-center md:justify-start gap-1.5 mt-2">
+                        <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                        <span className="font-semibold">{profile.reputationScore.toFixed(1)}</span>
+                        <span className="text-sm text-muted-foreground">(Reputation)</span>
+                    </div>
+                    </div>
+                    {currentUser?._id?.toString() !== profile._id && (
+                        <Button onClick={handleFollow} variant={isFollowing ? 'outline' : 'default'} className="mt-4 md:mt-6 w-full md:w-auto">
+                           {isFollowing ? 'Following' : 'Follow'}
+                        </Button>
+                    )}
+                </div>
+           </div>
+       </div>
+
       <div className="container mx-auto py-8 lg:py-12">
         <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 items-start">
           
@@ -78,26 +127,6 @@ export default function UserProfilePage() {
           {/* Sidebar: Profile Info */}
           <aside className="space-y-8 sticky top-24">
             <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  <Avatar className="h-24 w-24 mb-4 border-4 border-background shadow-md">
-                    <AvatarImage src={profile.profilePicture} alt={profile.name} />
-                    <AvatarFallback className="text-3xl">{getInitials(profile.name)}</AvatarFallback>
-                  </Avatar>
-                  <h1 className="text-2xl font-bold">{profile.name}</h1>
-                  <div className="flex items-center gap-1.5 mt-2">
-                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                    <span className="font-semibold">{profile.reputationScore.toFixed(1)}</span>
-                    <span className="text-sm text-muted-foreground">(Reputation)</span>
-                  </div>
-                  {currentUser?._id !== profile._id && (
-                    <Button className="mt-4 w-full">Follow</Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Stats</CardTitle>
               </CardHeader>
@@ -105,6 +134,10 @@ export default function UserProfilePage() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground flex items-center gap-2"><Users className="h-4 w-4" /> Followers</span>
                   <span className="font-semibold">{isLoadingFollowers ? '...' : followers?.length}</span>
+                </div>
+                 <div className="flex justify-between">
+                  <span className="text-muted-foreground flex items-center gap-2"><UserPlus className="h-4 w-4" /> Following</span>
+                  <span className="font-semibold">{isLoadingFollowing ? '...' : '...'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground flex items-center gap-2"><Package className="h-4 w-4" /> Items Lent</span>

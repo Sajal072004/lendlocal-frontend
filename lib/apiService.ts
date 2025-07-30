@@ -88,7 +88,22 @@ export const createItem = async (formData: FormData): Promise<Item> => {
 
 // ... existing types and functions
 
+export interface User {
+  _id: string;
+  name: string;
+  email: string;
+  profilePicture: string;
+  reputationScore: number;
+  createdAt: string;
+}
+
 export interface PublicUserProfile {
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    pinCode: string;
+  };
   _id: string;
   name: string;
   profilePicture: string;
@@ -132,5 +147,40 @@ export const createCommunity = async (name: string, description: string): Promis
 
 export const joinCommunity = async (inviteCode: string): Promise<Community> => {
   const { data } = await api.post('/communities/join', { inviteCode });
+  return data;
+};
+
+// ... existing functions
+
+// --- New API Functions for "My Profile" ---
+export const getMyBorrowingHistory = async (): Promise<BorrowRequest[]> => {
+  const { data } = await api.get('/users/history/borrowed');
+  return data;
+};
+
+export const getMyLendingHistory = async (): Promise<Item[]> => {
+  const { data } = await api.get('/users/history/lent');
+  return data;
+};
+
+export const getMyFollowers = async (userId: string): Promise<Follower[]> => {
+    const { data } = await api.get(`/users/${userId}/followers`);
+    return data;
+}
+
+export const getMyFollowing = async (userId: string): Promise<Follower[]> => {
+    const { data } = await api.get(`/users/${userId}/following`);
+    return data;
+}
+
+// ... existing functions
+
+// --- New API Function for Updating "My Profile" ---
+export const updateMyProfile = async (formData: FormData): Promise<User> => { // Assuming User type is defined
+  const { data } = await api.put('/users/profile', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return data;
 };
