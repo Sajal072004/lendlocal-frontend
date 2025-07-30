@@ -75,3 +75,13 @@ export const createBorrowRequest = async (itemId: string): Promise<BorrowRequest
   const { data } = await api.post(`/borrow/request/${itemId}`);
   return data;
 };
+
+// --- New API Function for Creating an Item ---
+export const createItem = async (formData: FormData): Promise<Item> => {
+  const { data } = await api.post('/items', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data', // Important for file uploads
+    },
+  });
+  return data;
+};

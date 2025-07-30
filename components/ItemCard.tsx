@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Item } from '@/lib/apiService';
@@ -13,9 +13,9 @@ export function ItemCard({ item }: { item: Item }) {
   };
 
   return (
-    <Link href={`/item/${item._id}`}>
-      <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow duration-300">
-        <CardHeader className="p-0 relative">
+    <Link href={`/item/${item._id}`} className="group block">
+      <Card className="h-full flex flex-col overflow-hidden transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1">
+        <div className="relative">
           <Image
             src={item.photos?.[0] || '/profile-placeholder.jpeg'}
             alt={item.name}
@@ -23,12 +23,13 @@ export function ItemCard({ item }: { item: Item }) {
             height={300}
             className="w-full h-48 object-cover"
           />
+           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           {item.availabilityStatus === 'borrowed' && (
-            <Badge variant="destructive" className="absolute top-2 right-2">Borrowed</Badge>
+            <Badge variant="destructive" className="absolute top-3 right-3">Borrowed</Badge>
           )}
-        </CardHeader>
+        </div>
         <CardContent className="p-4 flex-grow">
-          <CardTitle className="text-lg font-semibold line-clamp-2">{item.name}</CardTitle>
+          <h3 className="text-lg font-semibold leading-tight line-clamp-2">{item.name}</h3>
         </CardContent>
         <CardFooter className="p-4 pt-0 flex items-center justify-between">
           <div className="flex items-center gap-2">
