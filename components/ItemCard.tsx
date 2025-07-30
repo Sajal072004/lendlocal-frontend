@@ -6,8 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Item } from '@/lib/apiService';
 
 export function ItemCard({ item }: { item: Item }) {
-  const getInitials = (name: string) => {
-    const names = name.split(' ');
+  const getInitials = (name: string) => { if(!name) return '';
+    const names = name?.split(' ');
     if (names.length > 1) return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
     return name.substring(0, 2).toUpperCase();
   };

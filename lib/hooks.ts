@@ -52,3 +52,37 @@ export function useItemDetails(itemId: string) {
     mutate,
   };
 }
+
+
+// ... existing hooks
+import { getUserProfile, getUserLentItems, getUserFollowers } from './apiService';
+
+export function useUserProfile(userId: string) {
+  const { data, error, isLoading, mutate } = useSWR(userId ? `/users/${userId}/profile` : null, () => getUserProfile(userId));
+  return {
+    profile: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useUserLentItems(userId: string) {
+  const { data, error, isLoading, mutate } = useSWR(userId ? `/users/${userId}/items` : null, () => getUserLentItems(userId));
+  return {
+    items: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useUserFollowers(userId: string) {
+  const { data, error, isLoading, mutate } = useSWR(userId ? `/users/${userId}/followers` : null, () => getUserFollowers(userId));
+  return {
+    followers: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}

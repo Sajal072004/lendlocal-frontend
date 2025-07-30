@@ -85,3 +85,52 @@ export const createItem = async (formData: FormData): Promise<Item> => {
   });
   return data;
 };
+
+// ... existing types and functions
+
+export interface PublicUserProfile {
+  _id: string;
+  name: string;
+  profilePicture: string;
+  reputationScore: number;
+  createdAt: string;
+}
+
+export interface Follower {
+    _id: string;
+    follower: {
+        _id: string;
+        name: string;
+        profilePicture: string;
+    }
+}
+
+// --- New API Functions ---
+export const getUserProfile = async (userId: string): Promise<PublicUserProfile> => {
+  const { data } = await api.get(`/users/${userId}/profile`);
+  return data;
+};
+
+export const getUserLentItems = async (userId: string): Promise<Item[]> => {
+    // We need to create this backend endpoint next
+    const { data } = await api.get(`/users/${userId}/items`);
+    return data;
+};
+
+export const getUserFollowers = async (userId: string): Promise<Follower[]> => {
+    const { data } = await api.get(`/users/${userId}/followers`);
+    return data;
+}
+
+// ... existing functions
+
+// --- New API Functions for Communities ---
+export const createCommunity = async (name: string, description: string): Promise<Community> => {
+  const { data } = await api.post('/communities', { name, description });
+  return data;
+};
+
+export const joinCommunity = async (inviteCode: string): Promise<Community> => {
+  const { data } = await api.post('/communities/join', { inviteCode });
+  return data;
+};
