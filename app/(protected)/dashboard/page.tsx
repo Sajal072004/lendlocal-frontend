@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react'; // Import useState
+import { useState } from 'react';
 import { useAuth } from "@/context/AuthContext";
-import { useUserCommunities, useBorrowRequests } from "@/lib/hooks";
+import { useUserCommunities, useBorrowRequests, useConversations } from "@/lib/hooks";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,8 +11,9 @@ import { respondToRequest, BorrowRequest } from "@/lib/apiService";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from 'next/image';
 import Link from "next/link";
-import { PlusCircle, ChevronRight, Inbox } from "lucide-react";
-import { CommunityActionModal } from '@/components/CommunityActionModal'; // <-- Import the new modal
+import { PlusCircle, ChevronRight, Inbox, MessageSquare } from "lucide-react";
+import { CommunityActionModal } from '@/components/CommunityActionModal';
+import { ConversationCard } from '@/components/ConversationCard';
 
 // --- A more visually appealing empty state component ---
 function EmptyState({ title, description }: { title: string, description: string }) {
@@ -75,10 +76,10 @@ function RequestCard({ request, type, onAction }: { request: BorrowRequest, type
 // --- Main Dashboard Page Component ---
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { communities, isLoading: isLoadingCommunities, mutate: mutateCommunities } = useUserCommunities(); // Get mutate
+  const { communities, isLoading: isLoadingCommunities, mutate: mutateCommunities } = useUserCommunities();
   const { requests, isLoading: isLoadingRequests, mutate: mutateRequests } = useBorrowRequests();
+  const { conversations, isLoading: isLoadingConversations } = useConversations();
   
-  // State to control the modal
   const [isCommunityModalOpen, setIsCommunityModalOpen] = useState(false);
 
   return (
@@ -86,7 +87,7 @@ export default function DashboardPage() {
       <CommunityActionModal
         isOpen={isCommunityModalOpen}
         onClose={() => setIsCommunityModalOpen(false)}
-        onCommunityAction={() => mutateCommunities()} // Refresh list on action
+        onCommunityAction={() => mutateCommunities()}
       />
 
       <div className="container mx-auto py-8">
@@ -137,7 +138,7 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            {/* Right Column: Communities */}
+            {/* Right Column: Communities & Messages */}
             <div className="space-y-8">
               <Card>
                 <CardHeader>
@@ -166,6 +167,34 @@ export default function DashboardPage() {
                 <CardFooter>
                     <Button className="w-full" onClick={() => setIsCommunityModalOpen(true)}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Create or Join
+                    </Button>
+                </CardFooter>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                    <CardTitle>Recent Messages</CardTitle>
+                    <CardDescription>Your latest conversations.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {isLoadingConversations ? (
+                         Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
+                    ) : conversations && conversations.length > 0 ? (
+                        <div className="space-y-2">
+                            {conversations.slice(0, 3).map(convo => (
+                                <ConversationCard key={convo._id} conversation={convo} />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-6">
+                            <MessageSquare className="mx-auto h-8 w-8 text-muted-foreground" />
+                            <p className="mt-2 text-sm text-muted-foreground">No messages yet.</p>
+                        </div>
+                    )}
+                </CardContent>
+                <CardFooter>
+                    <Button variant="outline" className="w-full" asChild>
+                        <Link href="/chat">View All Messages</Link>
                     </Button>
                 </CardFooter>
               </Card>
