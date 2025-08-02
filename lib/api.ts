@@ -1,7 +1,8 @@
+import { baseUrl } from '@/config/axiosUrl';
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api', // Your backend URL from .env
+  baseURL: `${baseUrl}`, // Your backend URL from .env
   withCredentials: true, // This is crucial for sending cookies
 });
 

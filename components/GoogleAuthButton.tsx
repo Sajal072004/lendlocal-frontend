@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
+import { baseUrl } from "@/config/axiosUrl";
 
 // A simple SVG component for the Google icon
 const GoogleIcon = () => (
@@ -13,7 +14,7 @@ export const GoogleAuthButton = () => {
   const handleGoogleLogin = () => {
     // This is the key part: we simply navigate to the backend's Google auth route.
     // The backend will handle the redirect to Google and the callback.
-    window.location.href = 'http://localhost:8080/api/auth/google';
+    window.location.href = `${baseUrl}/auth/google`;
   };
 
   return (

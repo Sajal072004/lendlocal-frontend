@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
+import { backendUrl } from '@/config/axiosUrl';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -27,7 +28,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (isAuthenticated && user?._id) {
       // Connect to the socket server
-      const newSocket = io('http://localhost:8080'); // Your backend URL
+      const newSocket = io(`${backendUrl}`); // Your backend URL
 
       newSocket.on('connect', () => {
         setIsConnected(true);
