@@ -6,14 +6,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useAuth } from "@/context/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react"; // Import Suspense
 import { useRouter, useSearchParams } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type OtpFormValues = {
   otp: string;
 };
 
-export default function VerifyOtpPage() {
+// This new component contains the actual form logic and uses the client-side hooks.
+function VerifyOtpForm() {
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string>('');
   const { verifyOtp } = useAuth();
@@ -25,7 +27,7 @@ export default function VerifyOtpPage() {
     if (emailFromUrl) {
       setEmail(decodeURIComponent(emailFromUrl));
     } else {
-      // If no email is in the URL, we can't verify, so redirect to register
+      // If no email is in the URL, redirect to register
       router.push('/register');
     }
   }, [searchParams, router]);
@@ -53,6 +55,25 @@ export default function VerifyOtpPage() {
       }
     }
   };
+
+  // Display a loading state until the email is read from the URL
+  if (!email) {
+     return (
+        <Card className="w-full max-w-sm">
+            <CardHeader>
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-full mt-2" />
+            </CardHeader>
+            <CardContent className="grid gap-4">
+                <div className="flex flex-col items-center space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-12 w-48" />
+                </div>
+                <Skeleton className="h-10 w-full" />
+            </CardContent>
+        </Card>
+     );
+  }
 
   return (
     <Card className="w-full max-w-sm">
@@ -96,4 +117,27 @@ export default function VerifyOtpPage() {
       </CardContent>
     </Card>
   );
+}
+
+// The main export is now a wrapper that provides the Suspense boundary.
+export default function VerifyOtpPage() {
+    return (
+        <Suspense fallback={
+            <Card className="w-full max-w-sm">
+                <CardHeader>
+                    <Skeleton className="h-8 w-48" />
+                    <Skeleton className="h-4 w-full mt-2" />
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                    <div className="flex flex-col items-center space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-12 w-48" />
+                    </div>
+                    <Skeleton className="h-10 w-full" />
+                </CardContent>
+            </Card>
+        }>
+            <VerifyOtpForm />
+        </Suspense>
+    );
 }
