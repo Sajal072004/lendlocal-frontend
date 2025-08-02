@@ -5,7 +5,7 @@ export interface Community {
   _id: string;
   name: string;
   description: string;
-  memberCount: number; // Assuming the backend will provide this
+  memberCount: number; 
 }
 
 export interface BorrowRequest {
@@ -136,6 +136,16 @@ export const getUserFollowers = async (userId: string): Promise<Follower[]> => {
     const { data } = await api.get(`/users/${userId}/followers`);
     return data;
 }
+
+// --- ADDED FOLLOW/UNFOLLOW FUNCTIONS ---
+export const followUser = async (userId: string): Promise<void> => {
+  await api.post(`/users/${userId}/follow`);
+};
+
+export const unfollowUser = async (userId: string): Promise<void> => {
+    await api.delete(`/users/${userId}/unfollow`);
+};
+// -----------------------------------------
 
 // ... existing functions
 

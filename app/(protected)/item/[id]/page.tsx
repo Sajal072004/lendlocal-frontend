@@ -74,7 +74,7 @@ export default function ItemDetailPage() {
     );
   }
   
-  const isOwner = user?._id === item.owner._id;
+  const isOwner = String(user?._id) === item.owner._id;
 
   return (
     <div className="container mx-auto max-w-5xl py-8">
@@ -110,7 +110,7 @@ export default function ItemDetailPage() {
               <CardTitle className="text-lg">Owner Details</CardTitle>
             </CardHeader>
             <CardContent>
-              <Link href={`/user/${item.owner._id}`} className="flex items-center gap-3 group">
+              <Link href={`/user/${item.owner._id}/profile`} className="flex items-center gap-3 group">
                 <Avatar>
                   <AvatarImage src={item.owner.profilePicture} />
                   <AvatarFallback>{item.owner.name.charAt(0)}</AvatarFallback>

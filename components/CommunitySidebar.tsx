@@ -3,7 +3,7 @@
 import { CommunityDetails } from "@/lib/apiService";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users, Package, ShieldCheck } from "lucide-react";
+import { Users, Package } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 
@@ -51,7 +51,10 @@ export function CommunitySidebar({ community, itemCount }: CommunitySidebarProps
               </Link>
             ))}
             {community.members.length > 5 && (
-                <Button variant="link" className="p-0 h-auto">View all members</Button>
+                <Button variant="link" asChild className="p-0 h-auto text-sm">
+                    {/* This will link to a new page we can create next */}
+                    <Link href={`/community/${community._id}/members`}>View all members</Link>
+                </Button>
             )}
           </div>
         </div>

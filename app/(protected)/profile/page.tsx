@@ -8,12 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ItemCard } from '@/components/ItemCard';
-import { Star, Users, UserPlus, Package, Calendar, Settings } from 'lucide-react';
-import { format } from 'date-fns';
+import { Star, Users, UserPlus, Package, Settings } from 'lucide-react';
 import Link from 'next/link';
 
 // You can reuse the RequestCard from the dashboard or create a specific one
 interface Request {
+    _id: string;
     item: {
         name: string;
         photos?: string[];
@@ -73,14 +73,14 @@ export default function MyProfilePage() {
               <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
               <span className="font-semibold">{user.reputationScore?.toFixed(1) || 'N/A'}</span>
             </div>
-            <div className="flex items-center gap-1.5">
+            <Link href="/profile/followers" className="flex items-center gap-1.5 hover:underline">
               <Users className="h-4 w-4 text-muted-foreground" />
               <span className="font-semibold">{followers?.length || 0}</span> Followers
-            </div>
-            <div className="flex items-center gap-1.5">
+            </Link>
+            <Link href="/profile/following" className="flex items-center gap-1.5 hover:underline">
               <UserPlus className="h-4 w-4 text-muted-foreground" />
               <span className="font-semibold">{following?.length || 0}</span> Following
-            </div>
+            </Link>
           </div>
         </div>
         <Button asChild variant="outline">
@@ -92,10 +92,9 @@ export default function MyProfilePage() {
 
       {/* Tabbed Content */}
       <Tabs defaultValue="my-items">
-        <TabsList className="grid w-full grid-cols-3 md:w-auto md:grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2 md:w-auto md:grid-cols-2">
           <TabsTrigger value="my-items">My Items</TabsTrigger>
           <TabsTrigger value="borrow-history">Borrow History</TabsTrigger>
-          <TabsTrigger value="followers">Followers</TabsTrigger>
         </TabsList>
         
         <TabsContent value="my-items" className="mt-6">
@@ -114,15 +113,6 @@ export default function MyProfilePage() {
            ) : (
              history?.map(req => <HistoryCard key={req._id} request={req} />)
            )}
-        </TabsContent>
-
-        <TabsContent value="followers" className="mt-6">
-            {/* You can build a UserCard component for followers/following lists */}
-            {isLoadingFollowers ? <p>Loading followers...</p> : followers?.length === 0 ? (
-                <p>You don&apos;t have any followers yet.</p>
-            ) : (
-                followers?.map(f => <p key={f._id}>{f.follower.name}</p>)
-            )}
         </TabsContent>
       </Tabs>
     </div>

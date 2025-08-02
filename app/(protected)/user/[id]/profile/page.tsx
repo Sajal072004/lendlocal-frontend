@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useUserProfile, useUserLentItems, useUserFollowers, useMyFollowing } from '@/lib/hooks';
 import { useAuth } from '@/context/AuthContext';
+import { followUser, unfollowUser } from '@/lib/apiService';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ItemCard } from '@/components/ItemCard';
 import { Button } from '@/components/ui/button';
@@ -17,13 +18,14 @@ export default function UserProfilePage() {
   const userId = params.id as string;
   const { user: currentUser } = useAuth();
 
-  const { profile, isLoading: isLoadingProfile, mutate: mutateProfile } = useUserProfile(userId);
+  const { profile, isLoading: isLoadingProfile } = useUserProfile(userId);
   const { items, isLoading: isLoadingItems } = useUserLentItems(userId);
   const { followers, isLoading: isLoadingFollowers, mutate: mutateFollowers } = useUserFollowers(userId);
-  const { following, isLoading: isLoadingFollowing } = useMyFollowing(currentUser?._id?.toString()); // Check if current user is following this person
+  const { isLoading: isLoadingFollowing, mutate: mutateFollowing } = useMyFollowing(currentUser?._id?.toString());
 
   // State for follow button
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isSubmittingFollow, setIsSubmittingFollow] = useState(false);
   
   // Logic to determine if the current user is already following this profile
   useEffect(() => {
@@ -41,11 +43,22 @@ export default function UserProfilePage() {
   };
 
   const handleFollow = async () => {
-      // Add API call to follow/unfollow and then mutate SWR data
-      // For now, we'll just toggle the state for UI purposes
-      setIsFollowing(!isFollowing);
-      // await followUser(userId);
-      // mutateFollowers(); 
+      if (!currentUser) return;
+      setIsSubmittingFollow(true);
+      try {
+          if (isFollowing) {
+              await unfollowUser(userId);
+          } else {
+              await followUser(userId);
+          }
+          // Re-fetch data to update UI
+          mutateFollowers();
+          mutateFollowing();
+      } catch (error) {
+          console.error("Failed to follow/unfollow user:", error);
+      } finally {
+          setIsSubmittingFollow(false);
+      }
   }
 
   if (isLoadingProfile) {
@@ -93,8 +106,13 @@ export default function UserProfilePage() {
                     </div>
                     </div>
                     {currentUser?._id?.toString() !== profile._id && (
-                        <Button onClick={handleFollow} variant={isFollowing ? 'outline' : 'default'} className="mt-4 md:mt-6 w-full md:w-auto">
-                           {isFollowing ? 'Following' : 'Follow'}
+                        <Button 
+                          onClick={handleFollow} 
+                          variant={isFollowing ? 'outline' : 'default'} 
+                          className="mt-4 md:mt-6 w-full md:w-auto"
+                          disabled={isSubmittingFollow}
+                        >
+                           {isSubmittingFollow ? '...' : isFollowing ? 'Following' : 'Follow'}
                         </Button>
                     )}
                 </div>
