@@ -1,5 +1,44 @@
 import api from './api';
 
+// --- ADD NOTIFICATION INTERFACE ---
+export interface Notification {
+  _id: string;
+  recipient: string;
+  sender: {
+    _id: string;
+    name: string;
+    profilePicture: string;
+  };
+  type: string;
+  message: string;
+  link: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface Message {
+  _id: string;
+  conversation: string;
+  sender: {
+    _id: string;
+    name: string;
+    profilePicture: string;
+  };
+  content: string;
+  createdAt: string;
+}
+
+export interface Conversation {
+  _id: string;
+  participants: {
+    _id: string;
+    name: string;
+    profilePicture: string;
+  }[];
+  lastMessage?: Message;
+  updatedAt: string;
+}
+
 // --- Types for our data ---
 export interface Community {
   _id: string;
@@ -194,3 +233,43 @@ export const updateMyProfile = async (formData: FormData): Promise<User> => { //
   });
   return data;
 };
+
+
+// --- ADD NOTIFICATION API FUNCTIONS ---
+export const getNotifications = async (): Promise<Notification[]> => {
+  const { data } = await api.get('/notifications');
+  return data;
+};
+
+export const markNotificationAsRead = async (notificationId: string): Promise<Notification> => {
+  const { data } = await api.post(`/notifications/${notificationId}/read`);
+  return data;
+};
+
+// --- ADD SEARCH FUNCTION (if it's not already there) ---
+export const searchItems = async (query: string): Promise<Item[]> => {
+  const { data } = await api.get('/items/search', { params: { q: query } });
+  return data;
+};
+
+
+// --- ADD CHAT API FUNCTIONS ---
+export const getConversations = async (): Promise<Conversation[]> => {
+  const { data } = await api.get('/chat/conversations');
+  return data;
+};
+
+export const getMessages = async (conversationId: string): Promise<Message[]> => {
+  const { data } = await api.get(`/chat/conversations/${conversationId}/messages`);
+  return data;
+};
+
+export const sendMessage = async (conversationId: string, content: string): Promise<Message> => {
+  const { data } = await api.post(`/chat/conversations/${conversationId}/messages`, { content });
+  return data;
+};
+
+export const startConversation = async (recipientId: string): Promise<Conversation> => {
+  const { data } = await api.post('/chat/conversations', {userId2: recipientId });
+  return data;
+}

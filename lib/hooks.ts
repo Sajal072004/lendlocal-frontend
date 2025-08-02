@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { getUserCommunities, getBorrowRequests, getCommunityDetails, getCommunityItems } from './apiService';
+import { getUserCommunities, getBorrowRequests, getCommunityDetails, getCommunityItems, getNotifications, getConversations, getMessages } from './apiService';
 
 export function useUserCommunities() {
   const { data, error, isLoading, mutate } = useSWR('/communities', getUserCommunities);
@@ -108,4 +108,39 @@ export function useMyFollowers(userId: string | undefined) {
 export function useMyFollowing(userId: string | undefined) {
     const { data, error, isLoading, mutate } = useSWR(userId ? `/users/${userId}/following` : null, () => getMyFollowing(userId!));
     return { following: data, isLoading, isError: error, mutate };
+}
+
+export function useNotifications() {
+  const { data, error, isLoading, mutate } = useSWR('/notifications', getNotifications);
+
+  return {
+    notifications: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+// --- ADD CHAT HOOKS ---
+export function useConversations() {
+  const { data, error, isLoading, mutate } = useSWR('/chat/conversations', getConversations);
+  return {
+    conversations: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useMessages(conversationId: string) {
+  const { data, error, isLoading, mutate } = useSWR(
+    conversationId ? `/chat/conversations/${conversationId}/messages` : null,
+    () => getMessages(conversationId)
+  );
+  return {
+    messages: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
 }
