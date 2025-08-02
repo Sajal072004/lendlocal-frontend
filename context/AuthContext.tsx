@@ -22,22 +22,20 @@ interface RegisterCredentials extends LoginCredentials {
 
 
 
-// Update the context type to include the register function
 interface AuthContextType {
   user: IUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
-  register: (credentials: RegisterCredentials) => Promise<{ success: boolean; message: string }>; // Add register
+  register: (credentials: RegisterCredentials) => Promise<{ success: boolean; message: string }>;
   verifyOtp: (credentials: OtpCredentials) => Promise<void>; 
   logout: () => Promise<void>;
-  checkSession: () => Promise<void>; // Add checkSession for re-fetching user data
+  checkSession: () => Promise<void>;
+  handleAuthCallback: (token: string) => Promise<void>; // For Google OAuth
 }
 
-// Create the context with a default value of 'undefined'
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Create the Provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,52 +43,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const checkSession = async () => {
-      try {
-        const response = await api.get('/auth/session');
-        if (response.data.user) {
-          setUser(response.data.user);
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const response = await api.get('/auth/session');
+          if (response.data.user) {
+            setUser(response.data.user);
+          }
+        } catch (error) {
+          localStorage.removeItem('token');
+          setUser(null);
         }
-      } catch (error) {
-        setUser(null);
-      } finally {
-        setIsLoading(false);
       }
+      setIsLoading(false);
     };
     checkSession();
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
     const response = await api.post('/auth/login', credentials);
+    localStorage.setItem('token', response.data.token);
     setUser(response.data.user);
     router.push('/dashboard');
   };
 
-  // Add the register function
   const register = async (credentials: RegisterCredentials) => {
     const response = await api.post('/auth/register', credentials);
     return { success: response.data.success, message: response.data.message };
   };
 
-  // --- ADD THE VERIFY OTP FUNCTION ---
   const verifyOtp = async (credentials: OtpCredentials) => {
     const response = await api.post('/auth/verify-otp', credentials);
-    // On successful verification, the backend returns a user object and token (which is set as a cookie)
+    localStorage.setItem('token', response.data.token);
     setUser(response.data.user);
-    router.push('/dashboard'); // Redirect to dashboard after verification
+    router.push('/dashboard');
   };
-  // ------------------------------------
+  
+  const handleAuthCallback = async (token: string) => {
+    localStorage.setItem('token', token);
+    await checkSession();
+    router.push('/dashboard');
+  };
 
   const logout = async () => {
-    try {
-      await api.post('/auth/logout');
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
-      setUser(null);
-      router.push('/login');
-    }
+    localStorage.removeItem('token');
+    setUser(null);
+    router.push('/login');
   };
-
+  
   const checkSession = async () => {
     try {
       const response = await api.get('/auth/session');
@@ -98,16 +98,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(response.data.user);
       }
     } catch (error) {
+      localStorage.removeItem('token');
       setUser(null);
     }
   };
 
-  const value = { user, isAuthenticated: !!user, isLoading, login, register, verifyOtp, logout, checkSession };
+  const value = { user, isAuthenticated: !!user, isLoading, login, register, verifyOtp, logout, checkSession, handleAuthCallback };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Create the custom hook for easy access
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
