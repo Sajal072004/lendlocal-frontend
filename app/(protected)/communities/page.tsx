@@ -21,7 +21,7 @@ const CommunityCard = ({ community, isMember, onJoin }: { community: Community, 
       <CardContent>
         <div className="flex items-center text-sm text-muted-foreground">
           <Users className="mr-2 h-4 w-4" />
-          <span>{community.members.length} member(s)</span>
+          <span>{community.memberCount || 0} member(s)</span>
         </div>
       </CardContent>
       <CardFooter>
