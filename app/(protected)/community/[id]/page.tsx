@@ -7,8 +7,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ItemCard } from '@/components/ItemCard';
 import { Button } from '@/components/ui/button';
 import { AddItemModal } from '@/components/AddItemModal';
-import { CommunitySidebar } from '@/components/CommunitySidebar'; // Import the new sidebar
-import { PlusCircle, Search, Package } from 'lucide-react';
+import { CommunitySidebar } from '@/components/CommunitySidebar';
+import { InviteMemberModal } from '@/components/InviteMemberModal';
+import { PlusCircle, Search, Package, UserPlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 export default function CommunityPage() {
@@ -16,6 +17,7 @@ export default function CommunityPage() {
   const communityId = params.id as string;
 
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const { community, isLoading: isLoadingDetails } = useCommunityDetails(communityId);
@@ -50,12 +52,18 @@ export default function CommunityPage() {
         onItemAdded={() => mutateItems()}
       />
 
+      <InviteMemberModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        communityId={communityId}
+      />
+
       <div className="container mx-auto py-8 lg:py-12">
         <div className="grid lg:grid-cols-3 lg:gap-12 items-start">
           {/* Main Content: Search and Items Grid */}
           <main className="lg:col-span-2">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-              <div className="relative w-full md:max-w-md">
+              <div className="relative w-full md:max-w-xs">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
                   placeholder={`Search in ${community?.name}...`}
@@ -64,10 +72,16 @@ export default function CommunityPage() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button onClick={() => setIsAddItemModalOpen(true)} className="w-full md:w-auto flex-shrink-0">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add New Item
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={() => setIsInviteModalOpen(true)}>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Invite Members
+                </Button>
+                <Button onClick={() => setIsAddItemModalOpen(true)} className="w-full md:w-auto flex-shrink-0">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add New Item
+                </Button>
+              </div>
             </div>
 
             {isLoadingItems ? (
@@ -95,7 +109,7 @@ export default function CommunityPage() {
 
           {/* Sidebar */}
           <aside className="hidden lg:block">
-            {community && <CommunitySidebar community={community} itemCount={items?.length || 0} />}
+            {community && <CommunitySidebar community={community} itemCount={items?.length || 0} onInvite={() => setIsInviteModalOpen(true)} />}
           </aside>
         </div>
       </div>

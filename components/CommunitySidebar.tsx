@@ -1,19 +1,21 @@
 'use client';
 
 import { CommunityDetails } from "@/lib/apiService";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users, Package } from "lucide-react";
+import { Users, Package, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 
 interface CommunitySidebarProps {
   community: CommunityDetails;
   itemCount: number;
+  onInvite: () => void; // Add this prop to handle the invite button click
 }
 
-export function CommunitySidebar({ community, itemCount }: CommunitySidebarProps) {
+export function CommunitySidebar({ community, itemCount, onInvite }: CommunitySidebarProps) {
   const getInitials = (name: string) => {
+    if (!name) return '';
     const names = name.split(' ');
     if (names.length > 1) return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
     return name.substring(0, 2).toUpperCase();
@@ -51,14 +53,20 @@ export function CommunitySidebar({ community, itemCount }: CommunitySidebarProps
               </Link>
             ))}
             {community.members.length > 5 && (
-                <Button variant="link" asChild className="p-0 h-auto text-sm">
-                    {/* This will link to a new page we can create next */}
-                    <Link href={`/community/${community._id}/members`}>View all members</Link>
-                </Button>
+              <Button variant="link" asChild className="p-0 h-auto text-sm">
+                <Link href={`/community/${community._id}/members`}>View all members</Link>
+              </Button>
             )}
           </div>
         </div>
       </CardContent>
+      {/* Add the CardFooter with the Invite button */}
+      <CardFooter>
+        <Button className="w-full" variant="outline" onClick={onInvite}>
+          <UserPlus className="mr-2 h-4 w-4" />
+          Invite to Community
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

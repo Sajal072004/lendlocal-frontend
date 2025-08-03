@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { getUserCommunities, getBorrowRequests, getCommunityDetails, getCommunityItems, getNotifications, getConversations, getMessages } from './apiService';
+import { getUserCommunities, getBorrowRequests, getCommunityDetails, getCommunityItems, getNotifications, getConversations, getMessages, getCommunityInviteCode } from './apiService';
 
 export function useUserCommunities() {
   const { data, error, isLoading, mutate } = useSWR('/communities', getUserCommunities);
@@ -142,5 +142,17 @@ export function useMessages(conversationId: string) {
     isLoading,
     isError: error,
     mutate,
+  };
+}
+
+export function useCommunityInviteCode(communityId: string) {
+  const { data, error, isLoading } = useSWR(
+    communityId ? `/communities/${communityId}/invite-code` : null,
+    () => getCommunityInviteCode(communityId)
+  );
+  return {
+    inviteCode: data,
+    isLoading,
+    isError: error,
   };
 }

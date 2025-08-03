@@ -273,3 +273,8 @@ export const startConversation = async (recipientId: string): Promise<Conversati
   const { data } = await api.post('/chat/conversations', {userId2: recipientId });
   return data;
 }
+
+export const getCommunityInviteCode = async (communityId: string): Promise<string> => {
+  const { data } = await api.get(`/communities/${communityId}/invite-code`);
+  return data.inviteCode;
+};
