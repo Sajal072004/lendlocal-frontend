@@ -10,17 +10,20 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-// Note: The backend 'following' route returns a structure where the user being followed is in 'followed'
-interface Follower {
+// Interface to define the shape of the user being followed
+interface FollowingUser {
     _id: string;
-    followed?: {
-        _id: string;
-        name: string;
-        profilePicture?: string;
-    };
+    name: string;
+    profilePicture?: string;
 }
 
-const UserCard = ({ user }: { user: { _id: string; name: string; profilePicture?: string } }) => {
+// Interface for the main API response object, updated to use 'following'
+interface FollowingResponse {
+    _id: string;
+    following: FollowingUser; // The key from your API response
+}
+
+const UserCard = ({ user }: { user: FollowingUser }) => {
   const getInitials = (name: string) => {
     if (!name) return '';
     const names = name.split(' ');
@@ -50,7 +53,8 @@ const UserCard = ({ user }: { user: { _id: string; name: string; profilePicture?
 export default function FollowingPage() {
   const { user } = useAuth();
   const router = useRouter();
-  // Assuming useMyFollowing returns the list of users the current user is following
+  // The 'following' variable gets its type from the useMyFollowing hook.
+  // We cast it to the correct type in the .map() function.
   const { following, isLoading } = useMyFollowing(user?._id?.toString());
 
   return (
@@ -68,9 +72,11 @@ export default function FollowingPage() {
           {isLoading ? (
              Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)
           ) : following && following.length > 0 ? (
-            // The API for following might return the user object differently, adjust as needed
-            // Assuming it returns an array of objects with a `followed` property
-            following.map((f: Follower) => f.followed && <UserCard key={f._id} user={f.followed} />)
+            // FIX: Explicitly cast the array to the correct type to resolve the TS error.
+            (following as unknown as FollowingResponse[]).map((f) => {
+              if (!f.following) return null; // Gracefully handle if data is malformed
+              return <UserCard key={f._id} user={f.following} />;
+            })
           ) : (
             <p className="text-muted-foreground text-center py-8">You are not following anyone yet.</p>
           )}
