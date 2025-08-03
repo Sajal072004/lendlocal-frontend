@@ -383,3 +383,25 @@ export const respondToJoinRequest = async (requestId: string, response: 'approve
 export const deleteItem = async (itemId: string): Promise<void> => {
   await api.delete(`/items/${itemId}`);
 };
+
+// --- ADD ITEM REQUEST INTERFACE AND FUNCTIONS ---
+export interface IItemRequest {
+  _id: string;
+  requestedBy: {
+    _id: string;
+    name: string;
+    profilePicture: string;
+  };
+  itemName: string;
+  description: string;
+}
+
+export const createItemRequest = async (communityId: string, itemName: string, description: string): Promise<IItemRequest> => {
+  const { data } = await api.post('/item-requests', { community: communityId, itemName, description });
+  return data;
+};
+
+export const getCommunityItemRequests = async (communityId: string): Promise<IItemRequest[]> => {
+  const { data } = await api.get(`/item-requests/community/${communityId}`);
+  return data;
+};

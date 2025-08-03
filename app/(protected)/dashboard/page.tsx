@@ -37,6 +37,16 @@ function RequestCard({ request, type, onAction }: { request: BorrowRequest, type
     }
   };
 
+  // Gracefully handle cases where the associated item has been deleted
+  if (!request.item) {
+    return (
+      <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50 opacity-70 cursor-not-allowed">
+        <p className="text-sm text-muted-foreground">This request was for an item that has since been deleted.</p>
+        <span className="text-sm font-medium capitalize">{request.status.replace('_', ' ')}</span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors">
       <div className="flex items-center gap-4">
@@ -60,12 +70,12 @@ function RequestCard({ request, type, onAction }: { request: BorrowRequest, type
       </div>
       {type === 'incoming' && request.status === 'pending' && (
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={() => handleResponse('denied')}>Deny</Button>
-          <Button size="sm" onClick={() => handleResponse('approved')}>Approve</Button>
+          <Button size="sm" variant="outline" onClick={(e) => { e.preventDefault(); handleResponse('denied'); }}>Deny</Button>
+          <Button size="sm" onClick={(e) => { e.preventDefault(); handleResponse('approved'); }}>Approve</Button>
         </div>
       )}
       {request.status !== 'pending' && (
-         <span className="text-sm font-medium capitalize px-3 py-1 rounded-full bg-muted text-muted-foreground">{request.status}</span>
+         <span className="text-sm font-medium capitalize px-3 py-1 rounded-full bg-muted text-muted-foreground">{request.status.replace('_', ' ')}</span>
       )}
     </div>
   );

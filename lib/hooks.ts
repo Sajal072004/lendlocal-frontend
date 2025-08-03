@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { getUserCommunities, getBorrowRequests, getCommunityDetails, getCommunityItems, getNotifications, getConversations, getMessages, getCommunityInviteCode, searchAll, getAllCommunities, getBorrowRequestDetails, getMyReviews, getAllItems, getAllUsers, getCommunityJoinRequests } from './apiService';
+import { getUserCommunities, getBorrowRequests, getCommunityDetails, getCommunityItems, getNotifications, getConversations, getMessages, getCommunityInviteCode, searchAll, getAllCommunities, getBorrowRequestDetails, getMyReviews, getAllItems, getAllUsers, getCommunityJoinRequests, getCommunityItemRequests } from './apiService';
 
 export function useUserCommunities() {
   const { data, error, isLoading, mutate } = useSWR('/communities', getUserCommunities);
@@ -232,6 +232,19 @@ export function useCommunityJoinRequests(communityId: string) {
   );
   return {
     joinRequests: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useItemRequests(communityId: string) {
+  const { data, error, isLoading, mutate } = useSWR(
+    communityId ? `/item-requests/community/${communityId}` : null,
+    () => getCommunityItemRequests(communityId)
+  );
+  return {
+    itemRequests: data,
     isLoading,
     isError: error,
     mutate,
