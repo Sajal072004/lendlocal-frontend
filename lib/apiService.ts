@@ -53,6 +53,7 @@ export interface BorrowRequest {
   borrower: { _id: string; name: string; profilePicture: string };
   lender: { _id: string; name: string; profilePicture: string };
   status: 'pending' | 'approved' | 'denied' | 'returned';
+  createdAt: string;
 }
 
 // --- API Functions ---
@@ -292,5 +293,10 @@ export const searchAll = async (query: string): Promise<SearchResult[]> => {
 
 export const getAllCommunities = async (): Promise<Community[]> => {
   const { data } = await api.get('/communities/all');
+  return data;
+};
+
+export const getBorrowRequestDetails = async (requestId: string): Promise<BorrowRequest> => {
+  const { data } = await api.get(`/borrow/requests/${requestId}`);
   return data;
 };
