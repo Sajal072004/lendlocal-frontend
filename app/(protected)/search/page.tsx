@@ -10,7 +10,7 @@ import { Search as SearchIcon, Package, Users, User, Compass, X } from 'lucide-r
 import { ItemSearchResult } from '@/components/search/ItemSearchResult';
 import { CommunitySearchResult } from '@/components/search/CommunitySearchResult';
 import { UserSearchResult } from '@/components/search/UserSearchResult';
-import { Community, Item } from '@/lib/apiService';
+import { Community, Item, SearchResult } from '@/lib/apiService';
 import { IUser } from '@/lib/types';
 
 function SearchComponent() {
@@ -38,9 +38,9 @@ function SearchComponent() {
     router.push('/search');
   };
   
-  const items = searchResults?.filter(r => r.type === 'item') || [];
-  const communities = searchResults?.filter(r => r.type === 'community') || [];
-  const users = searchResults?.filter(r => r.type === 'user') || [];
+  const items = searchResults?.filter(r => r.type === 'item') as SearchResult[] || [];
+  const communities = searchResults?.filter(r => r.type === 'community') as SearchResult[] || [];
+  const users = searchResults?.filter(r => r.type === 'user') as SearchResult[] || [];
 
   const showSearchResults = initialQuery.length > 0;
   const isLoading = isSearching || isLoadingCommunities || isLoadingItems || isLoadingUsers;
@@ -74,9 +74,9 @@ function SearchComponent() {
       <div className="mt-8">
         {isLoading && (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="space-y-2"> {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)} </div>
-            <div className="space-y-2"> {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)} </div>
-            <div className="space-y-2"> {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)} </div>
+            <div className="space-y-2"> {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)} </div>
+            <div className="space-y-2"> {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)} </div>
+            <div className="space-y-2"> {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)} </div>
           </div>
         )}
         
@@ -123,20 +123,20 @@ function SearchComponent() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               <section>
                 <h2 className="text-lg font-semibold mb-4">Recently Added Items</h2>
-                <div className="space-y-2">
-                  {allItems?.slice(0, 5).map(item => <ItemSearchResult key={`all-item-${item._id}`} item={item as Item} />)}
+                <div className="space-y-2 max-h-[500px] overflow-y-auto pr-3">
+                  {allItems?.map(item => <ItemSearchResult key={`all-item-${item._id}`} item={item as Item} />)}
                 </div>
               </section>
               <section>
                 <h2 className="text-lg font-semibold mb-4">Popular Communities</h2>
-                <div className="space-y-2">
-                  {allCommunities?.slice(0, 5).map(community => <CommunitySearchResult key={`all-comm-${community._id}`} community={community as Community} />)}
+                <div className="space-y-2 max-h-[500px] overflow-y-auto pr-3">
+                  {allCommunities?.map(community => <CommunitySearchResult key={`all-comm-${community._id}`} community={community as Community} />)}
                 </div>
               </section>
               <section>
                 <h2 className="text-lg font-semibold mb-4">Discover People</h2>
-                <div className="space-y-2">
-                  {allUsers?.slice(0, 5).map(user => <UserSearchResult key={`all-user-${user._id}`} user={{...user, _id: String(user._id)}} />)}
+                <div className="space-y-2 max-h-[500px] overflow-y-auto pr-3">
+                  {allUsers?.map(user => <UserSearchResult key={`all-user-${user._id}`} user={{...user as IUser, _id: String(user._id)}} />)}
                 </div>
               </section>
             </div>

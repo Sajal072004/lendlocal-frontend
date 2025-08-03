@@ -86,7 +86,13 @@ export interface Item {
     name: string;
     profilePicture: string;
   };
+  community: { // <-- ADD THIS
+    _id: string;
+    name: string;
+  };
+  isMemberOfCommunity: boolean; // <-- ADD THIS
 }
+
 
 export interface CommunityDetails extends Community {
     members: {
