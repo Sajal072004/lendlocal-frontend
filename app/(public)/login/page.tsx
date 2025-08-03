@@ -83,7 +83,6 @@ export default function LoginPage() {
           </form>
         </Form>
 
-        {/* --- ADD THIS SECTION --- */}
         <div className="relative my-4">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
@@ -95,13 +94,21 @@ export default function LoginPage() {
           </div>
         </div>
         <GoogleAuthButton />
-        {/* ----------------------- */}
         
         <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <Link href="/register" className="underline">
-            Sign up
-          </Link>
+          <p>
+            Don&apos;t have an account?{" "}
+            <Link href="/register" className="underline">
+              Sign up
+            </Link>
+          </p>
+          {/* --- ADD THIS SECTION --- */}
+          <p className="mt-2">
+            <Link href="/forgot-password" className="underline text-muted-foreground hover:text-primary">
+              Forgot your password?
+            </Link>
+          </p>
+          {/* ----------------------- */}
         </div>
       </CardContent>
     </Card>

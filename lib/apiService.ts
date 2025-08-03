@@ -405,3 +405,11 @@ export const getCommunityItemRequests = async (communityId: string): Promise<IIt
   const { data } = await api.get(`/item-requests/community/${communityId}`);
   return data;
 };
+
+export const forgotPassword = async (email: string): Promise<void> => {
+  await api.post('/auth/forgot-password', { email });
+};
+
+export const resetPassword = async (data: { email: string, otp: string, newPassword: string }): Promise<void> => {
+  await api.post('/auth/reset-password', data);
+};
