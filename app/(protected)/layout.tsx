@@ -2,13 +2,16 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
-import { Loader } from "@/components/ui/loader"; // Import the loader
+import { Loader } from "@/components/ui/loader";
+import { SidebarNav } from "@/components/SidebarNav";
+
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -17,7 +20,6 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
-    // Use the animated loader for a better experience
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader />
@@ -27,17 +29,23 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
   if (isAuthenticated) {
     return (
-      <div className="flex flex-col min-h-screen bg-muted/40">
-        <Header />
-        {/* Use 'flex-1' to make the main content area take up remaining space */}
-        <main className="flex-1">
-          {children}
-        </main>
+      <div className="flex min-h-screen w-full bg-muted/40">
+        {/* Sidebar Navigation */}
+        <SidebarNav isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        
+        <div className="flex flex-col flex-1 sm:pl-14">
+          {/* Main Header */}
+          <Header onMenuClick={() => setIsSidebarOpen(true)} />
+          
+          {/* Page Content */}
+          <main className="flex-1 p-4 sm:p-6">
+            {children}
+          </main>
+        </div>
       </div>
     );
   }
 
-  // This loader will show briefly during the redirect to the login page
   return (
     <div className="flex items-center justify-center h-screen">
         <Loader />

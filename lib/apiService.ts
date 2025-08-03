@@ -278,3 +278,14 @@ export const getCommunityInviteCode = async (communityId: string): Promise<strin
   const { data } = await api.get(`/communities/${communityId}/invite-code`);
   return data.inviteCode;
 };
+
+
+export type SearchResult = 
+  | { type: 'item'; data: Item } // Assuming Item is already defined
+  | { type: 'community'; data: Community } // Assuming Community is already defined
+  | { type: 'user'; data: { _id: string; name: string; profilePicture: string; } };
+
+export const searchAll = async (query: string): Promise<SearchResult[]> => {
+  const { data } = await api.get('/search', { params: { q: query } });
+  return data;
+};

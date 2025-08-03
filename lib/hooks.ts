@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { getUserCommunities, getBorrowRequests, getCommunityDetails, getCommunityItems, getNotifications, getConversations, getMessages, getCommunityInviteCode } from './apiService';
+import { getUserCommunities, getBorrowRequests, getCommunityDetails, getCommunityItems, getNotifications, getConversations, getMessages, getCommunityInviteCode, searchAll } from './apiService';
 
 export function useUserCommunities() {
   const { data, error, isLoading, mutate } = useSWR('/communities', getUserCommunities);
@@ -152,6 +152,20 @@ export function useCommunityInviteCode(communityId: string) {
   );
   return {
     inviteCode: data,
+    isLoading,
+    isError: error,
+  };
+}
+
+export function useSearchAll(query: string) {
+  const shouldFetch = query && query.trim().length > 1;
+  const { data, error, isLoading } = useSWR(
+    shouldFetch ? ['/search', query] : null,
+    () => searchAll(query)
+  );
+
+  return {
+    results: data,
     isLoading,
     isError: error,
   };
