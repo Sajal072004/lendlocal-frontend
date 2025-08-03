@@ -379,3 +379,7 @@ export const getCommunityJoinRequests = async (communityId: string): Promise<Joi
 export const respondToJoinRequest = async (requestId: string, response: 'approve' | 'reject'): Promise<void> => {
   await api.post(`/communities/join-requests/${requestId}/respond`, { response });
 };
+
+export const deleteItem = async (itemId: string): Promise<void> => {
+  await api.delete(`/items/${itemId}`);
+};

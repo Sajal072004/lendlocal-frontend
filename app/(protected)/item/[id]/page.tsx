@@ -3,7 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useItemDetails } from '@/lib/hooks';
 import { useAuth } from '@/context/AuthContext';
-import { createBorrowRequest } from '@/lib/apiService';
+import { createBorrowRequest, deleteItem } from '@/lib/apiService'; // Import deleteItem
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +12,9 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowLeft, User, Calendar, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Trash2 } from 'lucide-react'; // Import Trash2 icon
+import { ConfirmationModal } from '@/components/ConfirmationModal'; // Import the modal
+import { toast } from 'sonner';
 
 export default function ItemDetailPage() {
   const params = useParams();
@@ -24,6 +26,7 @@ export default function ItemDetailPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [requestStatus, setRequestStatus] = useState<'success' | 'error' | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false); // State for confirmation modal
 
   const handleRequestBorrow = async () => {
     setIsSubmitting(true);
@@ -42,6 +45,17 @@ export default function ItemDetailPage() {
       }
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsConfirmOpen(false); // Close the modal first
+    try {
+        await deleteItem(itemId);
+        toast.success("Item deleted successfully.");
+        router.push('/dashboard'); // Redirect after deletion
+    } catch (error) {
+        toast.error("Failed to delete item.");
     }
   };
 
@@ -74,85 +88,101 @@ export default function ItemDetailPage() {
     );
   }
   
-  const isOwner = String(user?._id) === item.owner._id;
+  const isOwner = user?._id === item.owner._id;
 
   return (
-    <div className="container mx-auto max-w-5xl py-8">
-      <Button variant="ghost" onClick={() => router.back()} className="mb-8">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to items
-      </Button>
-
-      <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-        {/* Image Gallery */}
-        <div>
-          <Image
-            src={item.photos?.[0] || '/profile-placeholder.jpeg'}
-            alt={item.name}
-            width={600}
-            height={600}
-            className="w-full aspect-square object-cover rounded-lg border"
-          />
-          {/* Add thumbnails for multiple images here if needed */}
+    <>
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleDelete}
+        title="Are you absolutely sure?"
+        description="This action cannot be undone. This will permanently delete your item and any pending requests for it."
+      />
+      <div className="container mx-auto max-w-5xl py-8">
+        <div className="flex justify-between items-center mb-8">
+            <Button variant="ghost" onClick={() => router.back()}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to items
+            </Button>
+            {isOwner && (
+                <Button variant="destructive" onClick={() => setIsConfirmOpen(true)}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Item
+                </Button>
+            )}
         </div>
 
-        {/* Item Details */}
-        <div className="flex flex-col space-y-6">
+        <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+          {/* Image Gallery */}
           <div>
-            <Badge variant={item.availabilityStatus === 'available' ? 'default' : 'destructive'} className="mb-2">
-              {item.availabilityStatus.charAt(0).toUpperCase() + item.availabilityStatus.slice(1)}
-            </Badge>
-            <h1 className="text-4xl font-bold tracking-tight">{item.name}</h1>
+            <Image
+              src={item.photos?.[0] || '/profile-placeholder.jpeg'}
+              alt={item.name}
+              width={600}
+              height={600}
+              className="w-full aspect-square object-cover rounded-lg border"
+            />
           </div>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Owner Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Link href={`/user/${item.owner._id}/profile`} className="flex items-center gap-3 group">
-                <Avatar>
-                  <AvatarImage src={item.owner.profilePicture} />
-                  <AvatarFallback>{item.owner.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <span className="font-semibold group-hover:underline">{item.owner.name}</span>
-              </Link>
-            </CardContent>
-          </Card>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Description</h3>
-            <p className="text-muted-foreground">{item.description}</p>
-          </div>
-          
-          {/* Action Button */}
-          <div className="pt-4">
-            {isOwner ? (
-              <Button disabled className="w-full">This is your item</Button>
-            ) : item.availabilityStatus === 'borrowed' ? (
-              <Button disabled className="w-full">Currently Borrowed</Button>
-            ) : (
-              <Button onClick={handleRequestBorrow} disabled={isSubmitting} className="w-full">
-                {isSubmitting ? 'Sending Request...' : 'Request to Borrow'}
-              </Button>
+          {/* Item Details */}
+          <div className="flex flex-col space-y-6">
+            <div>
+              <Badge variant={item.availabilityStatus === 'available' ? 'default' : 'destructive'} className="mb-2">
+                {item.availabilityStatus.charAt(0).toUpperCase() + item.availabilityStatus.slice(1)}
+              </Badge>
+              <h1 className="text-4xl font-bold tracking-tight">{item.name}</h1>
+            </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Owner Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Link href={`/user/${item.owner._id}/profile`} className="flex items-center gap-3 group">
+                  <Avatar>
+                    <AvatarImage src={item.owner.profilePicture} />
+                    <AvatarFallback>{item.owner.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span className="font-semibold group-hover:underline">{item.owner.name}</span>
+                </Link>
+              </CardContent>
+            </Card>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Description</h3>
+              <p className="text-muted-foreground">{item.description}</p>
+            </div>
+            
+            {/* Action Button */}
+            <div className="pt-4">
+              {isOwner ? (
+                <Button disabled className="w-full">This is your item</Button>
+              ) : item.availabilityStatus === 'borrowed' ? (
+                <Button disabled className="w-full">Currently Borrowed</Button>
+              ) : (
+                <Button onClick={handleRequestBorrow} disabled={isSubmitting} className="w-full">
+                  {isSubmitting ? 'Sending Request...' : 'Request to Borrow'}
+                </Button>
+              )}
+            </div>
+            
+            {/* Success/Error Messages */}
+            {requestStatus === 'success' && (
+              <div className="flex items-center gap-2 text-green-600">
+                <CheckCircle className="h-5 w-5" />
+                <p>Request sent successfully! The owner has been notified.</p>
+              </div>
+            )}
+            {requestStatus === 'error' && (
+               <div className="flex items-center gap-2 text-destructive">
+                <XCircle className="h-5 w-5" />
+                <p>{errorMessage}</p>
+              </div>
             )}
           </div>
-          
-          {/* Success/Error Messages */}
-          {requestStatus === 'success' && (
-            <div className="flex items-center gap-2 text-green-600">
-              <CheckCircle className="h-5 w-5" />
-              <p>Request sent successfully! The owner has been notified.</p>
-            </div>
-          )}
-          {requestStatus === 'error' && (
-             <div className="flex items-center gap-2 text-destructive">
-              <XCircle className="h-5 w-5" />
-              <p>{errorMessage}</p>
-            </div>
-          )}
         </div>
       </div>
-    </div>
+    </>
   );
 }
