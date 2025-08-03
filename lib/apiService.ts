@@ -413,3 +413,8 @@ export const forgotPassword = async (email: string): Promise<void> => {
 export const resetPassword = async (data: { email: string, otp: string, newPassword: string }): Promise<void> => {
   await api.post('/auth/reset-password', data);
 };
+
+export const updateCommunity = async (communityId: string, updates: { name: string; description: string }): Promise<CommunityDetails> => {
+  const { data } = await api.put(`/communities/${communityId}`, updates);
+  return data;
+};

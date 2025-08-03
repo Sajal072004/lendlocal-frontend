@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import { useState, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useCommunityDetails, useCommunityItems, useCommunityJoinRequests, useItemRequests, useBorrowRequests } from '@/lib/hooks';
-import { requestToJoinCommunity, respondToJoinRequest, createItemRequest, createBorrowRequest, JoinRequest as IJoinRequest, IItemRequest } from '@/lib/apiService';
+import { requestToJoinCommunity, respondToJoinRequest, createItemRequest, createBorrowRequest, JoinRequest as IJoinRequest, IItemRequest, updateCommunity } from '@/lib/apiService';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ItemCard } from '@/components/ItemCard';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Link from 'next/link';
+import { EditCommunityModal } from '@/components/EditCommunityModal';
 
 // --- Sub-component for Join Requests ---
 const JoinRequestCard = ({ request, onRespond }: { request: IJoinRequest, onRespond: (id: string, response: 'approve' | 'reject') => void }) => (
@@ -56,6 +57,7 @@ export default function CommunityPage() {
   const { items, isLoading: isLoadingItems, mutate: mutateItems } = useCommunityItems(communityId);
   const { joinRequests, isLoading: isLoadingRequests, mutate: mutateRequests } = useCommunityJoinRequests(communityId);
   const { itemRequests, isLoading: isLoadingItemRequests, mutate: mutateItemRequests } = useItemRequests(communityId);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { requests: borrowRequests, mutate: mutateBorrowRequests } = useBorrowRequests();
 
   // --- Memoized Derived State ---
@@ -75,6 +77,8 @@ export default function CommunityPage() {
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+
+
   // --- Action Handlers ---
   const handleRequestJoin = async () => {
     try {
@@ -83,6 +87,17 @@ export default function CommunityPage() {
       mutateDetails();
     } catch (error) {
       toast.error('Failed to send request.');
+    }
+  };
+
+  const handleEditCommunity = async (values: { name: string; description: string }) => {
+    try {
+      await updateCommunity(communityId, values);
+      toast.success("Community details updated successfully!");
+      mutateDetails(); // Re-fetch community data to show changes
+      setIsEditModalOpen(false);
+    } catch (error) {
+      toast.error("Failed to update community.");
     }
   };
 
@@ -161,6 +176,15 @@ export default function CommunityPage() {
 
   return (
     <>
+
+{community && (
+        <EditCommunityModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSubmit={handleEditCommunity}
+          community={community}
+        />
+      )}
       <AddItemModal isOpen={isAddItemModalOpen} onClose={() => setIsAddItemModalOpen(false)} communityId={communityId} onItemAdded={mutateItems} />
       <InviteMemberModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} communityId={communityId} />
       <RequestItemModal isOpen={isRequestModalOpen} onClose={() => setIsRequestModalOpen(false)} onSubmit={handleCreateItemRequest} />
@@ -237,7 +261,14 @@ export default function CommunityPage() {
           </main>
           
           <aside className="hidden lg:block">
-            {community && <CommunitySidebar community={community} itemCount={items?.length || 0} onInvite={() => setIsInviteModalOpen(true)} />}
+          {community && (
+                    <CommunitySidebar 
+                        community={community} 
+                        itemCount={items?.length || 0} 
+                        onInvite={() => setIsInviteModalOpen(true)}
+                        onEdit={() => setIsEditModalOpen(true)} // <-- Pass handler to mobile too
+                    />
+                  )}
           </aside>
       </div>
 

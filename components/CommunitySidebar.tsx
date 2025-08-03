@@ -3,17 +3,22 @@
 import { CommunityDetails } from "@/lib/apiService";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users, Package, UserPlus } from "lucide-react";
+import { Users, Package, UserPlus, Edit } from "lucide-react"; // Import Edit icon
 import Link from "next/link";
 import { Button } from "./ui/button";
+import { useAuth } from "@/context/AuthContext"; // Import useAuth to check for owner
 
 interface CommunitySidebarProps {
   community: CommunityDetails;
   itemCount: number;
-  onInvite: () => void; // Add this prop to handle the invite button click
+  onInvite: () => void;
+  onEdit: () => void; // Add prop for handling edit action
 }
 
-export function CommunitySidebar({ community, itemCount, onInvite }: CommunitySidebarProps) {
+export function CommunitySidebar({ community, itemCount, onInvite, onEdit }: CommunitySidebarProps) {
+  const { user } = useAuth();
+  const isOwner = user?._id === community.owner;
+
   const getInitials = (name: string) => {
     if (!name) return '';
     const names = name.split(' ');
@@ -24,8 +29,18 @@ export function CommunitySidebar({ community, itemCount, onInvite }: CommunitySi
   return (
     <Card className="sticky top-24">
       <CardHeader>
-        <CardTitle>{community.name}</CardTitle>
-        <CardDescription>{community.description}</CardDescription>
+        <div className="flex justify-between items-start">
+            <div>
+                <CardTitle>{community.name}</CardTitle>
+                <CardDescription>{community.description}</CardDescription>
+            </div>
+            {/* Show Edit button only to the owner */}
+            {isOwner && (
+                <Button variant="ghost" size="icon" onClick={onEdit}>
+                    <Edit className="h-4 w-4" />
+                </Button>
+            )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-2 gap-4 text-center">
@@ -60,10 +75,9 @@ export function CommunitySidebar({ community, itemCount, onInvite }: CommunitySi
           </div>
         </div>
       </CardContent>
-      {/* Add the CardFooter with the Invite button */}
       <CardFooter>
         <Button className="w-full" variant="outline" onClick={onInvite}>
-          <UserPlus className="mr-2 h-4 w-4" />
+           <UserPlus className="mr-2 h-4 w-4" />
           Invite to Community
         </Button>
       </CardFooter>
