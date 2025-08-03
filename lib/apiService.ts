@@ -1,4 +1,5 @@
 import api from './api';
+import { IUser } from './types';
 
 // --- ADD NOTIFICATION INTERFACE ---
 export interface Notification {
@@ -336,4 +337,14 @@ export const getMyReviews = async (): Promise<Review[]> => {
 };
 
 
+export const getAllItems = async (): Promise<Item[]> => {
+  const { data } = await api.get('/items/all');
+  return data;
+};
+
+
+export const getAllUsers = async (): Promise<IUser[]> => { // Using 'any' for simplicity, can be a specific type
+  const { data } = await api.get('/users/all');
+  return data;
+};
 

@@ -15,7 +15,7 @@ interface IAddress {
 
 // Update the main User interface
 export interface IUser extends Document {
-  _id: mongoose.Types.ObjectId; 
+  _id: mongoose.Types.ObjectId | string; 
   name: string;
   email: string;
   password?: string;

@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { getUserCommunities, getBorrowRequests, getCommunityDetails, getCommunityItems, getNotifications, getConversations, getMessages, getCommunityInviteCode, searchAll, getAllCommunities, getBorrowRequestDetails, getMyReviews } from './apiService';
+import { getUserCommunities, getBorrowRequests, getCommunityDetails, getCommunityItems, getNotifications, getConversations, getMessages, getCommunityInviteCode, searchAll, getAllCommunities, getBorrowRequestDetails, getMyReviews, getAllItems, getAllUsers } from './apiService';
 
 export function useUserCommunities() {
   const { data, error, isLoading, mutate } = useSWR('/communities', getUserCommunities);
@@ -199,6 +199,26 @@ export function useMyReviews() {
   const { data, error, isLoading, mutate } = useSWR('/reviews/my-reviews', getMyReviews);
   return {
     reviews: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useAllItems() {
+  const { data, error, isLoading, mutate } = useSWR('/items/all', getAllItems);
+  return {
+    allItems: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useAllUsers() {
+  const { data, error, isLoading, mutate } = useSWR('/users/all', getAllUsers);
+  return {
+    allUsers: data,
     isLoading,
     isError: error,
     mutate,
