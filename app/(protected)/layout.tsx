@@ -7,7 +7,6 @@ import { Header } from "@/components/Header";
 import { Loader } from "@/components/ui/loader";
 import { SidebarNav } from "@/components/SidebarNav";
 
-
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
@@ -30,14 +29,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   if (isAuthenticated) {
     return (
       <div className="flex min-h-screen w-full bg-muted/40">
-        {/* Sidebar Navigation */}
         <SidebarNav isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-        
-        <div className="flex flex-col flex-1 sm:pl-14">
-          {/* Main Header */}
+        {/* Adjust left padding for the wider sidebar */}
+        <div className="flex flex-col flex-1 sm:pl-64"> 
           <Header onMenuClick={() => setIsSidebarOpen(true)} />
-          
-          {/* Page Content */}
           <main className="flex-1 p-4 sm:p-6">
             {children}
           </main>

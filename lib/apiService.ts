@@ -289,3 +289,8 @@ export const searchAll = async (query: string): Promise<SearchResult[]> => {
   const { data } = await api.get('/search', { params: { q: query } });
   return data;
 };
+
+export const getAllCommunities = async (): Promise<Community[]> => {
+  const { data } = await api.get('/communities/all');
+  return data;
+};

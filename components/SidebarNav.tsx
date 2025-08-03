@@ -6,8 +6,10 @@ import { Home, Users, MessageSquare, Package, Settings, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 
+// Add the new Communities link
 const navItems = [
   { href: "/dashboard", icon: Home, label: "Dashboard" },
+  { href: "/communities", icon: Users, label: "Communities" }, // <-- ADD THIS
   { href: "/chat", icon: MessageSquare, label: "Messages" },
   { href: "/profile", icon: Package, label: "My Profile" },
   { href: "/settings", icon: Settings, label: "Settings" },
@@ -32,38 +34,37 @@ export function SidebarNav({ isOpen, onClose }: SidebarNavProps) {
         onClick={onClose}
       />
       
-      {/* Sidebar */}
+      {/* Sidebar - Make wider on desktop */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-30 flex-col border-r bg-background transition-transform duration-300 sm:flex sm:translate-x-0",
-        isOpen ? "translate-x-0" : "-translate-x-full"
+        "fixed inset-y-0 left-0 z-30 flex-col border-r bg-background transition-transform duration-300 sm:flex sm:translate-x-0 w-64", // <-- ADD w-64 for width
+        isOpen ? "translate-x-0" : "-translate-x-full",
+        "sm:w-64" // Keep it wide on small screens and up
       )}>
-        <nav className="flex flex-col items-center gap-4 px-2 py-4">
-          <Link
-            href="/dashboard"
-            className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
-          >
-            <Package className="h-4 w-4 transition-all group-hover:scale-110" />
-            <span className="sr-only">LendLocal</span>
-          </Link>
-          
+        <div className="flex items-center justify-between border-b p-4">
+            <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+              <Package className="h-6 w-6" />
+              <span>LendLocal</span>
+            </Link>
+            <Button variant="ghost" size="icon" className="sm:hidden" onClick={onClose}>
+              <X className="h-5 w-5" />
+            </Button>
+        </div>
+        <nav className="flex-1 p-2">
           {navItems.map((item) => (
             <Link
               key={item.label}
               href={item.href}
               onClick={onClose}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8",
-                pathname.startsWith(item.href) && "bg-accent text-accent-foreground"
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                pathname.startsWith(item.href) && "bg-muted text-primary"
               )}
             >
-              <item.icon className="h-5 w-5" />
-              <span className="sr-only">{item.label}</span>
+              <item.icon className="h-4 w-4" />
+              {item.label}
             </Link>
           ))}
         </nav>
-        <Button variant="ghost" size="icon" className="absolute top-2 right-2 sm:hidden" onClick={onClose}>
-          <X className="h-5 w-5" />
-        </Button>
       </aside>
     </>
   );
