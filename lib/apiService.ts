@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import api from './api';
 import { IUser } from './types';
 
@@ -46,6 +47,7 @@ export interface Community {
   name: string;
   description: string;
   memberCount: number;
+  hasPendingRequest?: boolean;
 }
 
 export interface BorrowRequest {
@@ -92,6 +94,10 @@ export interface CommunityDetails extends Community {
         name: string;
         profilePicture: string;
     }[];
+    ownerId:string | mongoose.Types.ObjectId;
+    pendingJoinRequests:[string | mongoose.Types.ObjectId]
+    owner:mongoose.Types.ObjectId;
+    isMember:boolean;
 }
 
 // --- New API Functions ---
@@ -348,3 +354,28 @@ export const getAllUsers = async (): Promise<IUser[]> => { // Using 'any' for si
   return data;
 };
 
+// --- NEW JOIN REQUEST TYPE ---
+export interface JoinRequest {
+  _id: string;
+  user: {
+    _id: string;
+    name: string;
+    profilePicture: string;
+  };
+  status: 'pending' | 'approved' | 'rejected';
+}
+
+// --- API Functions ---
+
+export const requestToJoinCommunity = async (communityId: string): Promise<void> => {
+  await api.post(`/communities/${communityId}/request-join`);
+};
+
+export const getCommunityJoinRequests = async (communityId: string): Promise<JoinRequest[]> => {
+  const { data } = await api.get(`/communities/${communityId}/join-requests`);
+  return data;
+};
+
+export const respondToJoinRequest = async (requestId: string, response: 'approve' | 'reject'): Promise<void> => {
+  await api.post(`/communities/join-requests/${requestId}/respond`, { response });
+};

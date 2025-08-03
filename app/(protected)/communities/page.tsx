@@ -2,25 +2,32 @@
 
 import { useState } from 'react';
 import { useAllCommunities, useUserCommunities } from '@/lib/hooks';
-import { joinCommunity, Community } from '@/lib/apiService';
+import { requestToJoinCommunity, Community } from '@/lib/apiService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Users, CheckCircle } from 'lucide-react';
+import { Search, Users, CheckCircle, LogIn, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
-const CommunityCard = ({ community, isMember }: { community: Community, isMember: boolean }) => {
+const CommunityCard = ({ community, isMember, onJoinRequest }: { community: Community, isMember: boolean, onJoinRequest: (id: string) => void }) => {
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Prevent the Link from firing if the button is for an action
+    if (!isMember) {
+      e.preventDefault();
+      onJoinRequest(community._id);
+    }
+  };
+
   return (
-    // Wrap the card in a Link component
-    <Link href={`/community/${community._id}`} className="block">
-      <Card className="hover:border-primary transition-colors">
+    <Link href={`/community/${community._id}`} className="block h-full">
+      <Card className="flex flex-col h-full hover:border-primary transition-colors">
         <CardHeader>
           <CardTitle>{community.name}</CardTitle>
           <CardDescription className="line-clamp-2 h-10">{community.description}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-grow">
           <div className="flex items-center text-sm text-muted-foreground">
             <Users className="mr-2 h-4 w-4" />
             <span>{community.memberCount ? community.memberCount : 0} member(s)</span>
@@ -28,13 +35,18 @@ const CommunityCard = ({ community, isMember }: { community: Community, isMember
         </CardContent>
         <CardFooter>
           {isMember ? (
+            <Button variant="outline" className="w-full">
+              View Community
+            </Button>
+          ) : community.hasPendingRequest ? (
             <Button disabled variant="outline" className="w-full">
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Joined
+              <Clock className="mr-2 h-4 w-4" />
+              Request Sent
             </Button>
           ) : (
-            <Button variant="secondary" className="w-full">
-              View Community
+            <Button className="w-full" onClick={handleButtonClick}>
+              <LogIn className="mr-2 h-4 w-4" />
+              Request to Join
             </Button>
           )}
         </CardFooter>
@@ -45,8 +57,18 @@ const CommunityCard = ({ community, isMember }: { community: Community, isMember
 
 export default function CommunitiesPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const { allCommunities, isLoading: isLoadingAll } = useAllCommunities();
+  const { allCommunities, isLoading: isLoadingAll, mutate: mutateAllCommunities } = useAllCommunities();
   const { communities: myCommunities, isLoading: isLoadingMy } = useUserCommunities();
+
+  const handleJoinRequest = async (communityId: string) => {
+    try {
+      await requestToJoinCommunity(communityId);
+      toast.success("Request to join sent successfully!");
+      mutateAllCommunities();
+    } catch (error) {
+      toast.error("Failed to send request.");
+    }
+  };
 
   const myCommunityIds = new Set(myCommunities?.map(c => c._id));
   
@@ -85,6 +107,7 @@ export default function CommunitiesPage() {
               key={community._id}
               community={community}
               isMember={myCommunityIds.has(community._id)}
+              onJoinRequest={handleJoinRequest}
             />
           ))}
         </div>

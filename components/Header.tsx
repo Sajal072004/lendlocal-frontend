@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
+import { Input } from "./ui/input";
 import { Search, Menu } from "lucide-react";
 import { Notifications } from "./Notifications";
 import { Button } from "./ui/button";
@@ -33,23 +34,34 @@ export function Header({ onMenuClick }: HeaderProps) {
     return name.substring(0, 2).toUpperCase();
   };
 
+  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const query = formData.get('search') as string;
+    if (query.trim()) {
+      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+    }
+    else {
+      router.push(`/search`);
+    }
+  };
+
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 py-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <Button size="icon" variant="outline" className="sm:hidden" onClick={onMenuClick}>
         <Menu className="h-5 w-5" />
         <span className="sr-only">Toggle Menu</span>
       </Button>
       
       <div className="relative flex-1">
-        <Button 
-          variant="outline" 
-          className="w-full justify-start text-muted-foreground md:w-[200px] lg:w-[320px]"
-          onClick={() => router.push('/search')}
-        >
-          <Search className="mr-2 h-4 w-4" />
-          <span className="hidden lg:inline-block">Search items, communities, or people...</span>
-          <span className="lg:hidden">Search...</span>
-        </Button>
+        <form onSubmit={handleSearch} onClick={handleSearch}>
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            name="search"
+            placeholder="Search..."
+            className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+          />
+        </form>
       </div>
       
       <div className="flex items-center gap-2">
