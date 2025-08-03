@@ -1,4 +1,5 @@
 import mongoose, {Document} from 'mongoose';
+import { NotificationPreferences } from './apiService';
 
 interface IPoint {
   type: 'Point';
@@ -29,4 +30,6 @@ export interface IUser extends Document {
   isDisabled: boolean; 
   phoneNumber?: string; 
   address?: IAddress;
+  notificationPreferences: NotificationPreferences;
+  emailNotificationPreferences: NotificationPreferences;
 }

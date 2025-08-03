@@ -424,3 +424,40 @@ export const updateCommunity = async (communityId: string, updates: { name: stri
   const { data } = await api.put(`/communities/${communityId}`, updates);
   return data;
 };
+
+export interface NotificationPreferences {
+  new_borrow_request?: boolean;
+  request_approved?: boolean;
+  request_denied?: boolean;
+  item_returned?: boolean;
+  return_confirmed?: boolean;
+  new_join_request?: boolean;
+  new_item_request?: boolean;
+  new_offer?: boolean;
+  offer_accepted?: boolean;
+  new_follower?: boolean;
+  new_message?: boolean;
+}
+
+export interface EmailNotificationPreferences {
+  new_borrow_request?: boolean;
+  request_approved?: boolean;
+  request_denied?: boolean;
+  item_returned?: boolean;
+  return_confirmed?: boolean;
+  new_join_request?: boolean;
+  new_item_request?: boolean;
+  new_offer?: boolean;
+  offer_accepted?: boolean;
+  new_follower?: boolean;
+  new_message?: boolean;
+}
+
+export const updateNotificationPreferences = async (preferences: NotificationPreferences): Promise<void> => {
+  await api.put('/users/profile/notification-preferences', preferences);
+};
+
+// --- ADD THIS NEW API FUNCTION ---
+export const updateEmailNotificationPreferences = async (preferences: NotificationPreferences): Promise<void> => {
+  await api.put('/users/profile/email-notification-preferences', preferences);
+};

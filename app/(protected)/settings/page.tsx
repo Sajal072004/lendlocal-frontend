@@ -1,18 +1,19 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormReturn } from 'react-hook-form';
 import { useAuth } from '@/context/AuthContext';
-import { updateMyProfile } from '@/lib/apiService';
+import { updateMyProfile, updateEmailNotificationPreferences, EmailNotificationPreferences } from '@/lib/apiService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner'; // We'll add this for notifications
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 
-// Define the shape of our form data
-interface SettingsFormValues {
+// Form values for the profile section
+interface ProfileFormValues {
   name: string;
   phoneNumber?: string;
   profilePicture?: FileList;
@@ -24,28 +25,37 @@ interface SettingsFormValues {
   };
 }
 
+// Correctly alias the type for the notification form
+type NotificationFormValues = EmailNotificationPreferences;
+
+// Helper component to avoid repeating the FormField for each switch
+const NotificationSwitch = ({ form, name, label, description }: { form: UseFormReturn<NotificationFormValues>, name: keyof NotificationFormValues, label: string, description: string }) => (
+  <FormField
+    control={form.control}
+    name={name}
+    render={({ field }) => (
+      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+        <div className="space-y-0.5">
+          <FormLabel className="text-base">{label}</FormLabel>
+          <CardDescription>{description}</CardDescription>
+        </div>
+        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+      </FormItem>
+    )}
+  />
+);
+
 export default function SettingsPage() {
-  const { user, checkSession } = useAuth(); // Assuming checkSession can refetch user data
-  const [error, setError] = useState<string | null>(null);
+  const { user, checkSession } = useAuth();
   
-  const form = useForm<SettingsFormValues>({
-    // Pre-populate the form with the user's current data
-    defaultValues: {
-      name: user?.name || '',
-      phoneNumber: user?.phoneNumber || '',
-      address: {
-        street: user?.address?.street || '',
-        city: user?.address?.city || '',
-        state: user?.address?.state || '',
-        pinCode: user?.address?.pinCode || '',
-      },
-    },
-  });
-  
-  // Effect to reset form when user data changes (e.g., after initial load)
+  // Separate forms for each card for clarity and independent submission
+  const profileForm = useForm<ProfileFormValues>();
+  const notificationForm = useForm<NotificationFormValues>();
+
+  // Effect to populate forms when user data is available
   useEffect(() => {
     if (user) {
-      form.reset({
+      profileForm.reset({
         name: user.name,
         phoneNumber: user.phoneNumber || '',
         address: {
@@ -55,12 +65,12 @@ export default function SettingsPage() {
           pinCode: user.address?.pinCode || '',
         },
       });
+      // FIX: Populate notification form with email preferences
+      notificationForm.reset(user.emailNotificationPreferences);
     }
-  }, [user, form]);
+  }, [user, profileForm, notificationForm]);
 
-  const onSubmit = async (values: SettingsFormValues) => {
-    setError(null);
-    
+  const onProfileSubmit = async (values: ProfileFormValues) => {
     const formData = new FormData();
     formData.append('name', values.name);
     if(values.phoneNumber) formData.append('phoneNumber', values.phoneNumber);
@@ -75,11 +85,20 @@ export default function SettingsPage() {
 
     try {
       await updateMyProfile(formData);
-      await checkSession(); // Refresh the user data in the context
+      await checkSession();
       toast.success("Profile updated successfully!");
-    } catch (err: unknown) {
-      setError("Failed to update profile. Please try again.");
+    } catch (err) {
       toast.error("Failed to update profile.");
+    }
+  };
+
+  const onNotificationSubmit = async (data: NotificationFormValues) => {
+    try {
+      await updateEmailNotificationPreferences(data);
+      await checkSession();
+      toast.success("Email preferences updated!");
+    } catch (error) {
+      toast.error("Failed to update email preferences.");
     }
   };
   
@@ -92,16 +111,17 @@ export default function SettingsPage() {
 
   return (
     <div className="container mx-auto max-w-3xl py-8 lg:py-12">
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
           <p className="text-muted-foreground mt-2">
-            Manage your account settings and profile information.
+            Manage your account settings, profile, and email preferences.
           </p>
         </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+        {/* --- Profile Card and Form --- */}
+        <Form {...profileForm}>
+          <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
             <Card>
               <CardHeader>
                 <CardTitle>Profile</CardTitle>
@@ -109,7 +129,7 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <FormField
-                  control={form.control}
+                  control={profileForm.control}
                   name="profilePicture"
                   render={({ field }) => (
                     <FormItem className="flex items-center gap-6">
@@ -120,66 +140,48 @@ export default function SettingsPage() {
                       <div className="flex-grow">
                         <FormLabel>Profile Picture</FormLabel>
                         <FormControl>
-                          <Input type="file" accept="image/*" {...form.register("profilePicture")} />
+                          <Input type="file" accept="image/*" {...profileForm.register("profilePicture")} />
                         </FormControl>
                         <FormMessage />
                       </div>
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl><Input placeholder="Your full name" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="phoneNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number (Optional)</FormLabel>
-                      <FormControl><Input placeholder="Your phone number" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={profileForm.control} name="name" render={({ field }) => ( <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your full name" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                <FormField control={profileForm.control} name="phoneNumber" render={({ field }) => ( <FormItem><FormLabel>Phone Number (Optional)</FormLabel><FormControl><Input placeholder="Your phone number" {...field} /></FormControl><FormMessage /></FormItem> )} />
               </CardContent>
+               <CardFooter className="border-t px-6 py-4">
+                   <Button type="submit" disabled={profileForm.formState.isSubmitting}>
+                       {profileForm.formState.isSubmitting ? "Saving..." : "Save Profile"}
+                   </Button>
+              </CardFooter>
             </Card>
-
+          </form>
+        </Form>
+        
+        {/* --- Email Notifications Card and Form --- */}
+        <Form {...notificationForm}>
+          <form onSubmit={notificationForm.handleSubmit(onNotificationSubmit)}>
             <Card>
               <CardHeader>
-                <CardTitle>Address</CardTitle>
-                <CardDescription>Your address will not be shared publicly.</CardDescription>
+                  <CardTitle>Email Notification Preferences</CardTitle>
+                  <CardDescription>Choose which transactional emails you want to receive.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                 <FormField
-                  control={form.control}
-                  name="address.street"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Street</FormLabel>
-                      <FormControl><Input placeholder="123 Main St" {...field} /></FormControl>
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                   <FormField control={form.control} name="address.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
-                   <FormField control={form.control} name="address.state" render={({ field }) => (<FormItem><FormLabel>State</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
-                   <FormField control={form.control} name="address.pinCode" render={({ field }) => (<FormItem><FormLabel>PIN Code</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
-                </div>
+                  <NotificationSwitch form={notificationForm} name="new_borrow_request" label="New Borrow Requests" description="When someone requests to borrow your item." />
+                  <NotificationSwitch form={notificationForm} name="request_approved" label="Request Approved" description="When a lender approves your borrow request." />
+                  <NotificationSwitch form={notificationForm} name="request_denied" label="Request Denied" description="When a lender denies your borrow request." />
+                  <NotificationSwitch form={notificationForm} name="item_returned" label="Item Return Initiated" description="When a borrower marks your item as returned." />
+                  <NotificationSwitch form={notificationForm} name="return_confirmed" label="Return Confirmed" description="When a lender confirms an item has been returned." />
+                  <NotificationSwitch form={notificationForm} name="new_join_request" label="Community Join Requests" description="When someone wants to join a community you own." />
+                  <NotificationSwitch form={notificationForm} name="new_item_request" label="Wanted Item Requests" description="When someone in your community posts a wanted item." />
+                  <NotificationSwitch form={notificationForm} name="new_follower" label="New Followers" description="When another user follows you." />
+                  <NotificationSwitch form={notificationForm} name="new_message" label="New Chat Messages" description="When you receive a new direct message." />
               </CardContent>
-              <CardFooter className="border-t px-6 py-4">
-                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
-                 </Button>
+               <CardFooter className="border-t px-6 py-4">
+                   <Button type="submit" disabled={notificationForm.formState.isSubmitting}>
+                       {notificationForm.formState.isSubmitting ? "Saving..." : "Save Email Preferences"}
+                   </Button>
               </CardFooter>
             </Card>
           </form>
