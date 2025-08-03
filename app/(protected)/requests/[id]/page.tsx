@@ -1,6 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useBorrowRequestDetails } from '@/lib/hooks';
 import { useAuth } from '@/context/AuthContext';
 import { respondToRequest, initiateReturn, confirmReturn, BorrowRequest } from '@/lib/apiService';
@@ -13,20 +14,22 @@ import Link from 'next/link';
 import { ArrowLeft, Check, X, User, Calendar, HelpCircle, Undo2, UserCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { RatingModal } from '@/components/RatingModal'; // Import the modal
 
 const StatusBadge = ({ status }: { status: BorrowRequest['status'] }) => {
-    const baseClasses = "px-3 py-1 text-xs font-medium rounded-full capitalize";
+    const baseClasses = "px-3 py-1 text-xs font-medium rounded-full capitalize whitespace-nowrap";
     const statusClasses = {
         pending: "bg-yellow-100 text-yellow-800",
         approved: "bg-green-100 text-green-800",
         denied: "bg-red-100 text-red-800",
         returned: "bg-blue-100 text-blue-800",
         awaiting_confirmation: "bg-purple-100 text-purple-800",
-        return_confirmed: "bg-teal-100 text-teal-800",
+        return_confirmed: "bg-blue-100 text-blue-800",
     };
     const statusText = status.replace('_', ' ');
     return <div className={`${baseClasses} ${statusClasses[status] || 'bg-gray-100 text-gray-800'}`}>{statusText}</div>;
 };
+
 
 export default function BorrowRequestPage() {
   const params = useParams();
@@ -36,6 +39,9 @@ export default function BorrowRequestPage() {
 
   const { request, isLoading, isError, mutate } = useBorrowRequestDetails(requestId);
   
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [ratingAction, setRatingAction] = useState<'initiateReturn' | 'confirmReturn' | null>(null);
+
   const handleResponse = async (response: 'approved' | 'denied') => {
     try {
       await respondToRequest(requestId, response);
@@ -46,25 +52,53 @@ export default function BorrowRequestPage() {
     }
   };
 
-  const handleInitiateReturn = async () => {
-    try {
-        await initiateReturn(requestId);
-        toast.success("Return initiated. The lender has been notified.");
+  const openRatingModal = (action: 'initiateReturn' | 'confirmReturn') => {
+    setRatingAction(action);
+    setIsRatingModalOpen(true);
+  };
+
+  const handleReviewSubmit = async (rating: number, comment: string) => {
+    const reviewData = { rating, comment };
+    if (ratingAction === 'initiateReturn') {
+      try {
+        await initiateReturn(requestId, reviewData);
+        toast.success("Return initiated and review submitted!");
         mutate();
-    } catch (error: unknown) {
-        toast.error((error as { response?: { data?: { message?: string } } }).response?.data?.message || "Failed to initiate return.");
+      } catch (error) {
+        toast.error("Failed to process return.");
+      }
+    } else if (ratingAction === 'confirmReturn') {
+      try {
+        await confirmReturn(requestId, reviewData);
+        toast.success("Return confirmed and review submitted!");
+        mutate();
+      } catch (error) {
+        toast.error("Failed to confirm return.");
+      }
+    }
+  };
+  
+  const handleReviewSkip = async () => {
+    setIsRatingModalOpen(false); // Close the modal first
+    if (ratingAction === 'initiateReturn') {
+        try { 
+            await initiateReturn(requestId); 
+            toast.success("Return initiated."); 
+            mutate(); 
+        } catch (error) { 
+            toast.error("Failed to process return."); 
+        }
+    } else if (ratingAction === 'confirmReturn') {
+        try { 
+            await confirmReturn(requestId); 
+            toast.success("Return confirmed."); 
+            mutate(); 
+        } catch (error) { 
+            toast.error("Failed to confirm return."); 
+        }
     }
   };
 
-  const handleConfirmReturn = async () => {
-    try {
-        await confirmReturn(requestId);
-        toast.success("You've confirmed the item return.");
-        mutate();
-    } catch (error: unknown) {
-        toast.error((error as { response?: { data?: { message?: string } } }).response?.data?.message || "Failed to confirm return.");
-    }
-  };
 
   if (isLoading) {
     return (
@@ -88,11 +122,24 @@ export default function BorrowRequestPage() {
     );
   }
 
-  const isLender = user?._id?.toString() === request.lender._id.toString();
-  const isBorrower = user?._id?.toString() === request.borrower._id.toString();
+  const isLender = user?._id?.toString() === request.lender._id?.toString();
+  const isBorrower = user?._id?.toString() === request.borrower._id?.toString();
 
   return (
-    <div className="container max-w-3xl mx-auto">
+    <>
+      <RatingModal
+        isOpen={isRatingModalOpen}
+        onClose={() => setIsRatingModalOpen(false)}
+        onSubmit={handleReviewSubmit}
+        onSkip={handleReviewSkip}
+        title={ratingAction === 'initiateReturn' ? 'Review Your Experience' : 'Review the Borrower'}
+        description={
+            ratingAction === 'initiateReturn'
+            ? 'Optionally, rate your experience with the lender.'
+            : 'Optionally, rate your experience with the borrower.'
+        }
+      />
+      <div className="container max-w-3xl mx-auto">
         <Button variant="ghost" onClick={() => router.back()} className="mb-4 -ml-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
@@ -158,7 +205,6 @@ export default function BorrowRequestPage() {
                 </div>
             </CardContent>
             <CardFooter className="flex justify-end gap-3">
-                {/* Lender's actions */}
                 {isLender && request.status === 'pending' && (
                     <>
                         <Button variant="outline" onClick={() => handleResponse('denied')}><X className="mr-2 h-4 w-4" /> Reject</Button>
@@ -166,15 +212,15 @@ export default function BorrowRequestPage() {
                     </>
                 )}
                 {isLender && request.status === 'awaiting_confirmation' && (
-                    <Button onClick={handleConfirmReturn}><UserCheck className="mr-2 h-4 w-4" /> Confirm Return</Button>
+                    <Button onClick={() => openRatingModal('confirmReturn')}><UserCheck className="mr-2 h-4 w-4" /> Confirm Return</Button>
                 )}
                 
-                {/* Borrower's actions */}
                 {isBorrower && request.status === 'approved' && (
-                    <Button onClick={handleInitiateReturn}><Undo2 className="mr-2 h-4 w-4" /> Mark as Returned</Button>
+                    <Button onClick={() => openRatingModal('initiateReturn')}><Undo2 className="mr-2 h-4 w-4" /> Mark as Returned</Button>
                 )}
             </CardFooter>
         </Card>
-    </div>
+      </div>
+    </>
   );
 }

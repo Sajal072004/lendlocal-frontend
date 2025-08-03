@@ -11,55 +11,42 @@ import { Search, Users, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
-const CommunityCard = ({ community, isMember, onJoin }: { community: Community, isMember: boolean, onJoin: (id: string) => void }) => {
+const CommunityCard = ({ community, isMember }: { community: Community, isMember: boolean }) => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{community.name}</CardTitle>
-        <CardDescription className="line-clamp-2">{community.description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Users className="mr-2 h-4 w-4" />
-          <span>{community.memberCount || 0} member(s)</span>
-        </div>
-      </CardContent>
-      <CardFooter>
-        {isMember ? (
-          <Button disabled variant="outline" className="w-full">
-            <CheckCircle className="mr-2 h-4 w-4" />
-            Already a member
-          </Button>
-        ) : (
-          <Button asChild className="w-full">
-            <Link href={`/community/${community._id}`}>View Community</Link>
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
+    // Wrap the card in a Link component
+    <Link href={`/community/${community._id}`} className="block">
+      <Card className="hover:border-primary transition-colors">
+        <CardHeader>
+          <CardTitle>{community.name}</CardTitle>
+          <CardDescription className="line-clamp-2 h-10">{community.description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Users className="mr-2 h-4 w-4" />
+            <span>{community.memberCount ? community.memberCount : 0} member(s)</span>
+          </div>
+        </CardContent>
+        <CardFooter>
+          {isMember ? (
+            <Button disabled variant="outline" className="w-full">
+              <CheckCircle className="mr-2 h-4 w-4" />
+              Joined
+            </Button>
+          ) : (
+            <Button variant="secondary" className="w-full">
+              View Community
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+    </Link>
   );
 };
 
 export default function CommunitiesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const { allCommunities, isLoading: isLoadingAll } = useAllCommunities();
-  const { communities: myCommunities, isLoading: isLoadingMy, mutate: mutateMyCommunities } = useUserCommunities();
-
-  const handleJoin = async (communityId: string) => {
-    try {
-      // This is a placeholder for a future "request to join" flow.
-      // For now, it will use the existing join logic if you have an invite code,
-      // or you would build a request-to-join endpoint.
-      // Since we don't have the invite code here, we'll simulate a toast message.
-      toast.info("Request to join functionality is not yet implemented.");
-      // Example of how it would work:
-      // await requestToJoin(communityId);
-      // toast.success("Request sent!");
-      // mutateMyCommunities();
-    } catch (error) {
-      toast.error("Failed to send request.");
-    }
-  };
+  const { communities: myCommunities, isLoading: isLoadingMy } = useUserCommunities();
 
   const myCommunityIds = new Set(myCommunities?.map(c => c._id));
   
@@ -98,7 +85,6 @@ export default function CommunitiesPage() {
               key={community._id}
               community={community}
               isMember={myCommunityIds.has(community._id)}
-              onJoin={() => handleJoin(community._id)}
             />
           ))}
         </div>

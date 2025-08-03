@@ -44,7 +44,7 @@ export interface Community {
   _id: string;
   name: string;
   description: string;
-  memberCount: number; 
+  memberCount: number;
 }
 
 export interface BorrowRequest {
@@ -304,13 +304,36 @@ export const getBorrowRequestDetails = async (requestId: string): Promise<Borrow
 };
 
 
-// ... (keep existing functions)
-
-// --- ADD THESE NEW API FUNCTIONS ---
-export const initiateReturn = async (requestId: string): Promise<void> => {
-  await api.post(`/borrow/requests/${requestId}/return`);
+export const initiateReturn = async (requestId: string, review?: { rating: number; comment: string }): Promise<void> => {
+  await api.post(`/borrow/requests/${requestId}/return`, review);
 };
 
-export const confirmReturn = async (requestId: string): Promise<void> => {
-  await api.post(`/borrow/requests/${requestId}/confirm-return`);
+export const confirmReturn = async (requestId: string, review?: { rating: number; comment: string }): Promise<void> => {
+  await api.post(`/borrow/requests/${requestId}/confirm-return`, review);
 };
+
+// --- ADD REVIEW INTERFACE AND API FUNCTION ---
+export interface Review {
+  _id: string;
+  rating: number;
+  comment: string;
+  reviewer: {
+    _id: string;
+    name: string;
+    profilePicture: string;
+  };
+  item: {
+    _id: string;
+    name: string;
+    photos: string[];
+  };
+  createdAt: string;
+}
+
+export const getMyReviews = async (): Promise<Review[]> => {
+  const { data } = await api.get('/reviews/my-reviews');
+  return data;
+};
+
+
+

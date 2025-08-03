@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, MessageSquare, Package, Settings, X } from "lucide-react";
+import { Home, Users, MessageSquare, Package, Settings, X, Star } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,7 @@ const navItems = [
   { href: "/chat", icon: MessageSquare, label: "Messages" },
   { href: "/profile", icon: Package, label: "My Profile" },
   { href: "/settings", icon: Settings, label: "Settings" },
+  { href: "/reviews", icon: Star, label: "My Reviews" },
 ];
 
 interface SidebarNavProps {
