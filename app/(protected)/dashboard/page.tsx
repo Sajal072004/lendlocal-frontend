@@ -15,7 +15,6 @@ import { PlusCircle, ChevronRight, Inbox, MessageSquare } from "lucide-react";
 import { CommunityActionModal } from '@/components/CommunityActionModal';
 import { ConversationCard } from '@/components/ConversationCard';
 
-// --- A more visually appealing empty state component ---
 function EmptyState({ title, description }: { title: string, description: string }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-12 px-6">
@@ -26,7 +25,6 @@ function EmptyState({ title, description }: { title: string, description: string
   );
 }
 
-// --- Request Card Component ---
 function RequestCard({ request, type, onAction }: { request: BorrowRequest, type: 'incoming' | 'outgoing', onAction: () => void }) {
   const userToShow = type === 'incoming' ? request.borrower : request.lender;
 
@@ -73,7 +71,6 @@ function RequestCard({ request, type, onAction }: { request: BorrowRequest, type
   );
 }
 
-// --- Main Dashboard Page Component ---
 export default function DashboardPage() {
   const { user } = useAuth();
   const { communities, isLoading: isLoadingCommunities, mutate: mutateCommunities } = useUserCommunities();
@@ -90,115 +87,119 @@ export default function DashboardPage() {
         onCommunityAction={() => mutateCommunities()}
       />
 
-      <div className="container mx-auto py-8">
-        <div className="space-y-8">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Welcome back, {user?.name}!
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Here&apos;s an overview of your communities and active requests.
-            </p>
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Welcome back, {user?.name}!
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Here&apos;s an overview of your communities and active requests.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Borrow Requests</CardTitle>
+                <CardDescription>Manage your incoming and outgoing item requests.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="incoming">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="incoming">Incoming</TabsTrigger>
+                    <TabsTrigger value="outgoing">Outgoing</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="incoming" className="mt-6 space-y-2">
+                    {isLoadingRequests ? (
+                      Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)
+                    ) : requests?.incoming.length === 0 ? (
+                      <EmptyState title="No incoming requests" description="When someone requests to borrow your item, you'll see it here." />
+                    ) : (
+                      requests?.incoming.map(req => (
+                        <Link href={`/requests/${req._id}`} key={req._id} className="block">
+                          <RequestCard request={req} type="incoming" onAction={mutateRequests} />
+                        </Link>
+                      ))
+                    )}
+                  </TabsContent>
+                  <TabsContent value="outgoing" className="mt-6 space-y-2">
+                    {isLoadingRequests ? (
+                      Array.from({ length: 1 }).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)
+                    ) : requests?.outgoing.length === 0 ? (
+                      <EmptyState title="No outgoing requests" description="When you request to borrow an item, you'll see its status here." />
+                    ) : (
+                      requests?.outgoing.map(req => (
+                        <Link href={`/requests/${req._id}`} key={req._id} className="block">
+                          <RequestCard request={req} type="outgoing" onAction={mutateRequests} />
+                        </Link>
+                      ))
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Left Column: Requests */}
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Borrow Requests</CardTitle>
-                  <CardDescription>Manage your incoming and outgoing item requests.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Tabs defaultValue="incoming">
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="incoming">Incoming</TabsTrigger>
-                      <TabsTrigger value="outgoing">Outgoing</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="incoming" className="mt-6 space-y-4">
-                      {isLoadingRequests ? (
-                        Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)
-                      ) : requests?.incoming.length === 0 ? (
-                        <EmptyState title="No incoming requests" description="When someone requests to borrow your item, you'll see it here." />
-                      ) : (
-                        requests?.incoming.map(req => <RequestCard key={req._id} request={req} type="incoming" onAction={mutateRequests} />)
-                      )}
-                    </TabsContent>
-                    <TabsContent value="outgoing" className="mt-6 space-y-4">
-                      {isLoadingRequests ? (
-                        Array.from({ length: 1 }).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)
-                      ) : requests?.outgoing.length === 0 ? (
-                        <EmptyState title="No outgoing requests" description="When you request to borrow an item, you'll see its status here." />
-                      ) : (
-                        requests?.outgoing.map(req => <RequestCard key={req._id} request={req} type="outgoing" onAction={mutateRequests} />)
-                      )}
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Right Column: Communities & Messages */}
-            <div className="space-y-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Your Communities</CardTitle>
-                  <CardDescription>Communities you are a member of.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {isLoadingCommunities ? (
-                    Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
-                  ) : communities?.length === 0 ? (
-                    <EmptyState title="No communities yet" description="Join or create a community to start sharing." />
+          <div className="space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Your Communities</CardTitle>
+                <CardDescription>Communities you are a member of.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {isLoadingCommunities ? (
+                  Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
+                ) : communities?.length === 0 ? (
+                  <EmptyState title="No communities yet" description="Join or create a community to start sharing." />
+                ) : (
+                  communities?.map(community => (
+                    <Link href={`/community/${community._id}`} key={community._id} className="block p-4 border rounded-lg hover:bg-muted transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold">{community.name}</p>
+                          <p className="text-sm text-muted-foreground line-clamp-1">{community.description}</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    </Link>
+                  ))
+                )}
+              </CardContent>
+              <CardFooter>
+                  <Button className="w-full" onClick={() => setIsCommunityModalOpen(true)}>
+                      <PlusCircle className="mr-2 h-4 w-4" /> Create or Join
+                  </Button>
+              </CardFooter>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                  <CardTitle>Recent Messages</CardTitle>
+                  <CardDescription>Your latest conversations.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  {isLoadingConversations ? (
+                       Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
+                  ) : conversations && conversations.length > 0 ? (
+                      <div className="space-y-2">
+                          {conversations.slice(0, 3).map(convo => (
+                              <ConversationCard key={convo._id} conversation={convo} />
+                          ))}
+                      </div>
                   ) : (
-                    communities?.map(community => (
-                      <Link href={`/community/${community._id}`} key={community._id} className="block p-4 border rounded-lg hover:bg-muted transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-semibold">{community.name}</p>
-                            <p className="text-sm text-muted-foreground line-clamp-1">{community.description}</p>
-                          </div>
-                          <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                      </Link>
-                    ))
+                      <div className="text-center py-6">
+                          <MessageSquare className="mx-auto h-8 w-8 text-muted-foreground" />
+                          <p className="mt-2 text-sm text-muted-foreground">No messages yet.</p>
+                      </div>
                   )}
-                </CardContent>
-                <CardFooter>
-                    <Button className="w-full" onClick={() => setIsCommunityModalOpen(true)}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Create or Join
-                    </Button>
-                </CardFooter>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                    <CardTitle>Recent Messages</CardTitle>
-                    <CardDescription>Your latest conversations.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {isLoadingConversations ? (
-                         Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
-                    ) : conversations && conversations.length > 0 ? (
-                        <div className="space-y-2">
-                            {conversations.slice(0, 3).map(convo => (
-                                <ConversationCard key={convo._id} conversation={convo} />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-6">
-                            <MessageSquare className="mx-auto h-8 w-8 text-muted-foreground" />
-                            <p className="mt-2 text-sm text-muted-foreground">No messages yet.</p>
-                        </div>
-                    )}
-                </CardContent>
-                <CardFooter>
-                    <Button variant="outline" className="w-full" asChild>
-                        <Link href="/chat">View All Messages</Link>
-                    </Button>
-                </CardFooter>
-              </Card>
-            </div>
+              </CardContent>
+              <CardFooter>
+                  <Button variant="outline" className="w-full" asChild>
+                      <Link href="/chat">View All Messages</Link>
+                  </Button>
+              </CardFooter>
+            </Card>
           </div>
         </div>
       </div>

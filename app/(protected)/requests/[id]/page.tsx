@@ -3,29 +3,30 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useBorrowRequestDetails } from '@/lib/hooks';
 import { useAuth } from '@/context/AuthContext';
-import { respondToRequest } from '@/lib/apiService';
+import { respondToRequest, initiateReturn, confirmReturn, BorrowRequest } from '@/lib/apiService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Check, X, User, Calendar, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Check, X, User, Calendar, HelpCircle, Undo2, UserCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
-const StatusBadge = ({ status }: { status: string }) => {
+const StatusBadge = ({ status }: { status: BorrowRequest['status'] }) => {
     const baseClasses = "px-3 py-1 text-xs font-medium rounded-full capitalize";
     const statusClasses = {
         pending: "bg-yellow-100 text-yellow-800",
         approved: "bg-green-100 text-green-800",
         denied: "bg-red-100 text-red-800",
         returned: "bg-blue-100 text-blue-800",
+        awaiting_confirmation: "bg-purple-100 text-purple-800",
+        return_confirmed: "bg-teal-100 text-teal-800",
     };
-    const finalClasses = `${baseClasses} ${statusClasses[status as keyof typeof statusClasses] || 'bg-gray-100 text-gray-800'}`;
-    return <div className={finalClasses}>{status}</div>;
+    const statusText = status.replace('_', ' ');
+    return <div className={`${baseClasses} ${statusClasses[status] || 'bg-gray-100 text-gray-800'}`}>{statusText}</div>;
 };
-
 
 export default function BorrowRequestPage() {
   const params = useParams();
@@ -39,9 +40,29 @@ export default function BorrowRequestPage() {
     try {
       await respondToRequest(requestId, response);
       toast.success(`Request has been ${response}.`);
-      mutate(); // Re-fetch data to show updated status
+      mutate();
     } catch (error) {
       toast.error("Failed to respond to request.");
+    }
+  };
+
+  const handleInitiateReturn = async () => {
+    try {
+        await initiateReturn(requestId);
+        toast.success("Return initiated. The lender has been notified.");
+        mutate();
+    } catch (error: unknown) {
+        toast.error((error as { response?: { data?: { message?: string } } }).response?.data?.message || "Failed to initiate return.");
+    }
+  };
+
+  const handleConfirmReturn = async () => {
+    try {
+        await confirmReturn(requestId);
+        toast.success("You've confirmed the item return.");
+        mutate();
+    } catch (error: unknown) {
+        toast.error((error as { response?: { data?: { message?: string } } }).response?.data?.message || "Failed to confirm return.");
     }
   };
 
@@ -67,7 +88,8 @@ export default function BorrowRequestPage() {
     );
   }
 
-  const isLender = user?._id?.toString() === request.lender._id;
+  const isLender = user?._id?.toString() === request.lender._id.toString();
+  const isBorrower = user?._id?.toString() === request.borrower._id.toString();
 
   return (
     <div className="container max-w-3xl mx-auto">
@@ -135,16 +157,23 @@ export default function BorrowRequestPage() {
                     </Card>
                 </div>
             </CardContent>
-            {isLender && request.status === 'pending' && (
-                <CardFooter className="flex justify-end gap-3">
-                    <Button variant="outline" onClick={() => handleResponse('denied')}>
-                        <X className="mr-2 h-4 w-4" /> Reject
-                    </Button>
-                    <Button onClick={() => handleResponse('approved')}>
-                        <Check className="mr-2 h-4 w-4" /> Approve
-                    </Button>
-                </CardFooter>
-            )}
+            <CardFooter className="flex justify-end gap-3">
+                {/* Lender's actions */}
+                {isLender && request.status === 'pending' && (
+                    <>
+                        <Button variant="outline" onClick={() => handleResponse('denied')}><X className="mr-2 h-4 w-4" /> Reject</Button>
+                        <Button onClick={() => handleResponse('approved')}><Check className="mr-2 h-4 w-4" /> Approve</Button>
+                    </>
+                )}
+                {isLender && request.status === 'awaiting_confirmation' && (
+                    <Button onClick={handleConfirmReturn}><UserCheck className="mr-2 h-4 w-4" /> Confirm Return</Button>
+                )}
+                
+                {/* Borrower's actions */}
+                {isBorrower && request.status === 'approved' && (
+                    <Button onClick={handleInitiateReturn}><Undo2 className="mr-2 h-4 w-4" /> Mark as Returned</Button>
+                )}
+            </CardFooter>
         </Card>
     </div>
   );

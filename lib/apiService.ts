@@ -52,7 +52,7 @@ export interface BorrowRequest {
   item: { _id: string; name: string; photos: string[] };
   borrower: { _id: string; name: string; profilePicture: string };
   lender: { _id: string; name: string; profilePicture: string };
-  status: 'pending' | 'approved' | 'denied' | 'returned';
+  status: 'pending' | 'approved' | 'denied' | 'returned' | 'awaiting_confirmation' | 'return_confirmed';
   createdAt: string;
 }
 
@@ -149,6 +149,8 @@ export interface PublicUserProfile {
   profilePicture: string;
   reputationScore: number;
   createdAt: string;
+  followerCount: number;
+  transactionCount: number;
 }
 
 export interface Follower {
@@ -299,4 +301,16 @@ export const getAllCommunities = async (): Promise<Community[]> => {
 export const getBorrowRequestDetails = async (requestId: string): Promise<BorrowRequest> => {
   const { data } = await api.get(`/borrow/requests/${requestId}`);
   return data;
+};
+
+
+// ... (keep existing functions)
+
+// --- ADD THESE NEW API FUNCTIONS ---
+export const initiateReturn = async (requestId: string): Promise<void> => {
+  await api.post(`/borrow/requests/${requestId}/return`);
+};
+
+export const confirmReturn = async (requestId: string): Promise<void> => {
+  await api.post(`/borrow/requests/${requestId}/confirm-return`);
 };
