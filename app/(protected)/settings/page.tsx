@@ -5,14 +5,14 @@ import { useAuth } from '@/context/AuthContext';
 import { updateMyProfile, updateEmailNotificationPreferences, EmailNotificationPreferences } from '@/lib/apiService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
-// Form values for the profile section
+// Form values for the profile section, including address
 interface ProfileFormValues {
   name: string;
   phoneNumber?: string;
@@ -25,10 +25,10 @@ interface ProfileFormValues {
   };
 }
 
-// Correctly alias the type for the notification form
+// Type for the notification form
 type NotificationFormValues = EmailNotificationPreferences;
 
-// Helper component to avoid repeating the FormField for each switch
+// Helper component for switches to reduce repetition
 const NotificationSwitch = ({ form, name, label, description }: { form: UseFormReturn<NotificationFormValues>, name: keyof NotificationFormValues, label: string, description: string }) => (
   <FormField
     control={form.control}
@@ -37,7 +37,7 @@ const NotificationSwitch = ({ form, name, label, description }: { form: UseFormR
       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
         <div className="space-y-0.5">
           <FormLabel className="text-base">{label}</FormLabel>
-          <CardDescription>{description}</CardDescription>
+          <FormDescription>{description}</FormDescription>
         </div>
         <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
       </FormItem>
@@ -48,7 +48,6 @@ const NotificationSwitch = ({ form, name, label, description }: { form: UseFormR
 export default function SettingsPage() {
   const { user, checkSession } = useAuth();
   
-  // Separate forms for each card for clarity and independent submission
   const profileForm = useForm<ProfileFormValues>();
   const notificationForm = useForm<NotificationFormValues>();
 
@@ -65,7 +64,6 @@ export default function SettingsPage() {
           pinCode: user.address?.pinCode || '',
         },
       });
-      // FIX: Populate notification form with email preferences
       notificationForm.reset(user.emailNotificationPreferences);
     }
   }, [user, profileForm, notificationForm]);
@@ -119,42 +117,39 @@ export default function SettingsPage() {
           </p>
         </div>
 
-        {/* --- Profile Card and Form --- */}
+        {/* --- Profile & Address Card and Form --- */}
         <Form {...profileForm}>
-          <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
+          <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-8">
             <Card>
               <CardHeader>
                 <CardTitle>Profile</CardTitle>
                 <CardDescription>This is your public information. Be mindful of what you share.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <FormField
-                  control={profileForm.control}
-                  name="profilePicture"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center gap-6">
-                      <Avatar className="h-20 w-20">
-                        <AvatarImage src={user?.profilePicture} />
-                        <AvatarFallback className="text-2xl">{getInitials(user?.name)}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-grow">
-                        <FormLabel>Profile Picture</FormLabel>
-                        <FormControl>
-                          <Input type="file" accept="image/*" {...profileForm.register("profilePicture")} />
-                        </FormControl>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
+                <FormField control={profileForm.control} name="profilePicture" render={({ field }) => ( <FormItem className="flex items-center gap-6"><Avatar className="h-20 w-20"><AvatarImage src={user?.profilePicture} /><AvatarFallback className="text-2xl">{getInitials(user?.name)}</AvatarFallback></Avatar><div className="flex-grow"><FormLabel>Profile Picture</FormLabel><FormControl><Input type="file" accept="image/*" {...profileForm.register("profilePicture")} /></FormControl><FormMessage /></div></FormItem> )} />
                 <FormField control={profileForm.control} name="name" render={({ field }) => ( <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your full name" {...field} /></FormControl><FormMessage /></FormItem> )} />
                 <FormField control={profileForm.control} name="phoneNumber" render={({ field }) => ( <FormItem><FormLabel>Phone Number (Optional)</FormLabel><FormControl><Input placeholder="Your phone number" {...field} /></FormControl><FormMessage /></FormItem> )} />
               </CardContent>
-               <CardFooter className="border-t px-6 py-4">
-                   <Button type="submit" disabled={profileForm.formState.isSubmitting}>
-                       {profileForm.formState.isSubmitting ? "Saving..." : "Save Profile"}
-                   </Button>
-              </CardFooter>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Address</CardTitle>
+                    <CardDescription>Your address is used for location-based features and is not shared publicly.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <FormField control={profileForm.control} name="address.street" render={({ field }) => ( <FormItem><FormLabel>Street</FormLabel><FormControl><Input placeholder="123 Main St" {...field} /></FormControl></FormItem> )}/>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField control={profileForm.control} name="address.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                        <FormField control={profileForm.control} name="address.state" render={({ field }) => (<FormItem><FormLabel>State</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                        <FormField control={profileForm.control} name="address.pinCode" render={({ field }) => (<FormItem><FormLabel>PIN Code</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                    </div>
+                </CardContent>
+                <CardFooter className="border-t px-6 py-4">
+                    <Button type="submit" disabled={profileForm.formState.isSubmitting}>
+                        {profileForm.formState.isSubmitting ? "Saving Profile..." : "Save Profile & Address"}
+                    </Button>
+                </CardFooter>
             </Card>
           </form>
         </Form>

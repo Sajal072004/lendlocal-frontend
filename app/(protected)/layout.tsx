@@ -28,12 +28,18 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
   if (isAuthenticated) {
     return (
-      <div className="flex min-h-screen w-full bg-muted/40">
+      <div className="flex h-screen w-full bg-muted/40 overflow-hidden">
         <SidebarNav isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-        {/* Adjust left padding for the wider sidebar */}
-        <div className="flex flex-col flex-1 sm:pl-64"> 
-          <Header onMenuClick={() => setIsSidebarOpen(true)} />
-          <main className="flex-1 p-4 sm:p-6">
+        
+        {/* Main content area with fixed header */}
+        <div className="flex flex-col flex-1 sm:pl-64 h-full">
+          {/* Fixed Header */}
+          <div className="flex-shrink-0 z-10">
+            <Header onMenuClick={() => setIsSidebarOpen(true)} />
+          </div>
+          
+          {/* Scrollable Main Content */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6">
             {children}
           </main>
         </div>
@@ -43,7 +49,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex items-center justify-center h-screen">
-        <Loader />
+      <Loader />
     </div>
   );
 }
