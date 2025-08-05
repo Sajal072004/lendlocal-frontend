@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { SocketProvider } from "@/context/SocketContext"; // <-- IMPORT
 import { Toaster } from "@/components/ui/sonner"; 
+import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,6 +19,8 @@ export default function RootLayout({ children }: { children: React.ReactNode; })
       <body className={inter.className}>
         <AuthProvider>
           <SocketProvider>
+          <Analytics />
+          {/* Main content */}
           {children}
           <Toaster/>
           </SocketProvider>
