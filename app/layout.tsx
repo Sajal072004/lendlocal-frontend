@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { SocketProvider } from "@/context/SocketContext"; // <-- IMPORT
 import { Toaster } from "@/components/ui/sonner"; 
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +21,8 @@ export default function RootLayout({ children }: { children: React.ReactNode; })
         <AuthProvider>
           <SocketProvider>
           <Analytics />
+          <SpeedInsights />
+          {/* Add any additional metadata or scripts here */}
           {/* Main content */}
           {children}
           <Toaster/>
