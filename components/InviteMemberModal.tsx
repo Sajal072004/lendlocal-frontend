@@ -23,7 +23,7 @@ export function InviteMemberModal({ isOpen, onClose, communityId }: InviteMember
     if (inviteCode) {
       navigator.clipboard.writeText(inviteCode);
       setHasCopied(true);
-      setTimeout(() => setHasCopied(false), 2000); // Reset after 2 seconds
+      setTimeout(() => setHasCopied(false), 2000); 
     }
   };
 

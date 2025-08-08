@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createCommunity, joinCommunity } from '@/lib/apiService';
 
-// --- Types for our forms ---
+
 interface CreateCommunityFormValues {
   name: string;
   description: string;
@@ -23,7 +23,7 @@ interface JoinCommunityFormValues {
 interface CommunityActionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCommunityAction: () => void; // Callback to refresh the community list
+  onCommunityAction: () => void; 
 }
 
 export function CommunityActionModal({ isOpen, onClose, onCommunityAction }: CommunityActionModalProps) {
@@ -38,7 +38,7 @@ export function CommunityActionModal({ isOpen, onClose, onCommunityAction }: Com
       onCommunityAction();
       onClose();
     } catch (err: unknown) {
-      // Handle error display
+      
     }
   };
 
@@ -49,7 +49,7 @@ export function CommunityActionModal({ isOpen, onClose, onCommunityAction }: Com
       onCommunityAction();
       onClose();
     } catch (err: unknown) {
-      // Handle error display
+      
     }
   };
 

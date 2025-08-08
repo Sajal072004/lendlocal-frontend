@@ -10,7 +10,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 
-// Define a specific type for the form values
+
 type LoginFormValues = {
   email: string;
   password: string;
@@ -31,7 +31,7 @@ export default function LoginPage() {
     try {
       await login(values);
     } catch (err: unknown) {
-      // Type-safe error handling for Axios errors
+      
       if (err && typeof err === 'object' && 'response' in err) {
         const response = err.response as { data?: { message?: string } };
         setError(response.data?.message || "An unexpected error occurred.");

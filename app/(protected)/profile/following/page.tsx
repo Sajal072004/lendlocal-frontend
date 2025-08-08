@@ -10,17 +10,17 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-// Interface to define the shape of the user being followed
+
 interface FollowingUser {
     _id: string;
     name: string;
     profilePicture?: string;
 }
 
-// Interface for the main API response object, updated to use 'following'
+
 interface FollowingResponse {
     _id: string;
-    following: FollowingUser; // The key from your API response
+    following: FollowingUser; 
 }
 
 const UserCard = ({ user }: { user: FollowingUser }) => {
@@ -53,8 +53,8 @@ const UserCard = ({ user }: { user: FollowingUser }) => {
 export default function FollowingPage() {
   const { user } = useAuth();
   const router = useRouter();
-  // The 'following' variable gets its type from the useMyFollowing hook.
-  // We cast it to the correct type in the .map() function.
+  
+  
   const { following, isLoading } = useMyFollowing(user?._id?.toString());
 
   return (
@@ -72,9 +72,9 @@ export default function FollowingPage() {
           {isLoading ? (
              Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)
           ) : following && following.length > 0 ? (
-            // FIX: Explicitly cast the array to the correct type to resolve the TS error.
+            
             (following as unknown as FollowingResponse[]).map((f) => {
-              if (!f.following) return null; // Gracefully handle if data is malformed
+              if (!f.following) return null; 
               return <UserCard key={f._id} user={f.following} />;
             })
           ) : (

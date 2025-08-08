@@ -17,7 +17,7 @@ export function ConversationCard({ conversation }: ConversationCardProps) {
   const otherParticipant = conversation.participants.find(p => p._id !== user?._id?.toString());
 
   if (!otherParticipant) {
-    return null; // Or some fallback UI
+    return null; 
   }
 
   const getInitials = (name: string) => {
@@ -44,7 +44,7 @@ export function ConversationCard({ conversation }: ConversationCardProps) {
           </div>
           <p className={cn(
             "text-sm text-muted-foreground truncate",
-            // You can add logic here to bold unread messages if your backend supports it
+            
           )}>
             {conversation.lastMessage ? conversation.lastMessage.content : "No messages yet"}
           </p>

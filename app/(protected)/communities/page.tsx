@@ -13,7 +13,7 @@ import Link from 'next/link';
 
 const CommunityCard = ({ community, isMember, onJoinRequest }: { community: Community, isMember: boolean, onJoinRequest: (id: string) => void }) => {
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // Prevent the Link from firing if the button is for an action
+    
     if (!isMember) {
       e.preventDefault();
       onJoinRequest(community._id);

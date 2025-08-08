@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useAuth } from "@/context/AuthContext";
-import { useState, useEffect, Suspense } from "react"; // Import Suspense
+import { useState, useEffect, Suspense } from "react"; 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -14,7 +14,7 @@ type OtpFormValues = {
   otp: string;
 };
 
-// This new component contains the actual form logic and uses the client-side hooks.
+
 function VerifyOtpForm() {
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string>('');
@@ -27,7 +27,7 @@ function VerifyOtpForm() {
     if (emailFromUrl) {
       setEmail(decodeURIComponent(emailFromUrl));
     } else {
-      // If no email is in the URL, redirect to register
+      
       router.push('/register');
     }
   }, [searchParams, router]);
@@ -56,7 +56,7 @@ function VerifyOtpForm() {
     }
   };
 
-  // Display a loading state until the email is read from the URL
+  
   if (!email) {
      return (
         <Card className="w-full max-w-sm">
@@ -119,7 +119,7 @@ function VerifyOtpForm() {
   );
 }
 
-// The main export is now a wrapper that provides the Suspense boundary.
+
 export default function VerifyOtpPage() {
     return (
         <Suspense fallback={

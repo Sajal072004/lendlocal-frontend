@@ -5,7 +5,7 @@ import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { IUser } from '@/lib/types';
 
-// Define a specific type for login/register credentials
+
 interface LoginCredentials {
   email: string;
   password: string;
@@ -31,7 +31,7 @@ interface AuthContextType {
   verifyOtp: (credentials: OtpCredentials) => Promise<void>; 
   logout: () => Promise<void>;
   checkSession: () => Promise<void>;
-  handleAuthCallback: (token: string) => Promise<void>; // For Google OAuth
+  handleAuthCallback: (token: string) => Promise<void>; 
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

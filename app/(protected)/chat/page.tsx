@@ -4,7 +4,7 @@ import { MessageCircle, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ChatRootPage() {
-  // Handle mobile sidebar toggle
+  
   const handleSidebarToggle = () => {
     window.dispatchEvent(new CustomEvent('toggleSidebar'));
   };

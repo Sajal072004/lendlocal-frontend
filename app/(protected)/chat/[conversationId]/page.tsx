@@ -36,7 +36,7 @@ export default function ChatPage() {
   
   useEffect(() => {
     if (socket) {
-      // Listen for incoming messages for this specific conversation
+      
       socket.on('new_message', (message: Message) => {
         if (message.conversation === conversationId) {
           mutate((currentMessages = []) => [...currentMessages, message], false);
@@ -55,7 +55,7 @@ export default function ChatPage() {
 
     try {
       setIsTyping(true);
-      // Optimistically update the UI
+      
       const optimisticMessage: Message = {
         _id: Date.now().toString(),
         conversation: conversationId,
@@ -66,14 +66,14 @@ export default function ChatPage() {
       mutate((currentMessages = []) => [...currentMessages, optimisticMessage], false);
       setNewMessage('');
       
-      // Send message via API (which also emits socket event from backend)
+      
       await sendMessage(conversationId, newMessage);
       
-      // Revalidate to get the actual message from the server
+      
       mutate();
     } catch (error) {
       console.error('Failed to send message:', error);
-      // Revert optimistic update on error
+      
       mutate();
     } finally {
       setIsTyping(false);
@@ -81,20 +81,20 @@ export default function ChatPage() {
     }
   };
 
-  // Get conversation partner info
+  
   const conversationPartner = messages?.find(msg => msg.sender._id !== user?._id.toString())?.sender;
 
-  // Handle back navigation
+  
   const handleBackClick = () => {
     if (typeof window !== 'undefined') {
       window.history.back();
     }
   };
 
-  // Handle mobile sidebar toggle (this will be passed from layout)
+  
   const handleSidebarToggle = () => {
-    // This function will be provided by the parent layout
-    // For now, we'll use a custom event to communicate with the layout
+    
+    
     window.dispatchEvent(new CustomEvent('toggleSidebar'));
   };
 
@@ -229,7 +229,7 @@ export default function ChatPage() {
                         isCurrentUser
                           ? "bg-primary text-primary-foreground rounded-br-md"
                           : "bg-muted rounded-bl-md",
-                        // Adjust border radius for message chains
+                        
                         !showAvatar && !isCurrentUser && "rounded-tl-2xl",
                         !isLastFromSender && !isCurrentUser && "rounded-bl-2xl",
                         !showAvatar && isCurrentUser && "rounded-tr-2xl",

@@ -14,7 +14,7 @@ function AuthCallback() {
     if (token) {
       handleAuthCallback(token);
     } else {
-      // If no token, redirect to login
+      
       router.push('/login');
     }
   }, [searchParams, handleAuthCallback, router]);

@@ -6,10 +6,10 @@ import { Home, Users, MessageSquare, Package, Settings, X, Star } from "lucide-r
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 
-// Add the new Communities link
+
 const navItems = [
   { href: "/dashboard", icon: Home, label: "Dashboard" },
-  { href: "/communities", icon: Users, label: "Communities" }, // <-- ADD THIS
+  { href: "/communities", icon: Users, label: "Communities" }, 
   { href: "/chat", icon: MessageSquare, label: "Messages" },
   { href: "/profile", icon: Package, label: "My Profile" },
   { href: "/settings", icon: Settings, label: "Settings" },
@@ -37,9 +37,9 @@ export function SidebarNav({ isOpen, onClose }: SidebarNavProps) {
       
       {/* Sidebar - Make wider on desktop */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-30 flex-col border-r bg-background transition-transform duration-300 sm:flex sm:translate-x-0 w-64", // <-- ADD w-64 for width
+        "fixed inset-y-0 left-0 z-30 flex-col border-r bg-background transition-transform duration-300 sm:flex sm:translate-x-0 w-64", 
         isOpen ? "translate-x-0" : "-translate-x-full",
-        "sm:w-64" // Keep it wide on small screens and up
+        "sm:w-64" 
       )}>
         <div className="flex items-center justify-between border-b p-4">
             <Link href="/dashboard" className="flex items-center gap-2 font-semibold">

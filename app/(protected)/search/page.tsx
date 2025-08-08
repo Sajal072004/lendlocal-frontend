@@ -19,7 +19,7 @@ function SearchComponent() {
   const initialQuery = searchParams.get('q') || '';
   const [query, setQuery] = useState(initialQuery);
 
-  // Hooks for fetching data
+  
   const { results: searchResults, isLoading: isSearching } = useSearchAll(initialQuery);
   const { allCommunities, isLoading: isLoadingCommunities } = useAllCommunities();
   const { allItems, isLoading: isLoadingItems } = useAllItems();

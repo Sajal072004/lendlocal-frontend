@@ -11,15 +11,15 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
   
-  // Check if we're in a specific chat (has an ID in the path)
+  
   const isInChat = pathname.includes('/chat/') && pathname.split('/').length > 2;
 
-  // Close sidebar when route changes (mobile)
+  
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [pathname]);
 
-  // Close sidebar on escape key
+  
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {

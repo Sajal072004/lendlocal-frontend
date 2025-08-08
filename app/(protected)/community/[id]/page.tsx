@@ -24,7 +24,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Link from 'next/link';
 import { EditCommunityModal } from '@/components/EditCommunityModal';
 
-// --- Sub-component for Join Requests ---
+
 const JoinRequestCard = ({ request, onRespond }: { request: IJoinRequest, onRespond: (id: string, response: 'approve' | 'reject') => void }) => (
     <div className="flex items-center justify-between p-4 border rounded-lg">
         <Link href={`/user/${request.user._id}/profile`} className="flex items-center gap-3 group">
@@ -41,7 +41,7 @@ const JoinRequestCard = ({ request, onRespond }: { request: IJoinRequest, onResp
     </div>
 );
 
-// --- Main Community Page Component ---
+
 export default function CommunityPage() {
   const params = useParams();
   const { user } = useAuth();
@@ -52,7 +52,7 @@ export default function CommunityPage() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // --- Data Fetching Hooks ---
+  
   const { community, isLoading: isLoadingDetails, mutate: mutateDetails } = useCommunityDetails(communityId);
   const { items, isLoading: isLoadingItems, mutate: mutateItems } = useCommunityItems(communityId);
   const { joinRequests, isLoading: isLoadingRequests, mutate: mutateRequests } = useCommunityJoinRequests(communityId);
@@ -60,7 +60,7 @@ export default function CommunityPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { requests: borrowRequests, mutate: mutateBorrowRequests } = useBorrowRequests();
 
-  // --- Memoized Derived State ---
+  
   const isMember = community?.isMember;
   const isOwner = useMemo(() => community?.owner === user?._id, [community, user]);
   const hasPendingRequest = community?.hasPendingRequest;
@@ -79,7 +79,7 @@ export default function CommunityPage() {
 
 
 
-  // --- Action Handlers ---
+  
   const handleRequestJoin = async () => {
     try {
       await requestToJoinCommunity(communityId);
@@ -94,7 +94,7 @@ export default function CommunityPage() {
     try {
       await updateCommunity(communityId, values);
       toast.success("Community details updated successfully!");
-      mutateDetails(); // Re-fetch community data to show changes
+      mutateDetails(); 
       setIsEditModalOpen(false);
     } catch (error) {
       toast.error("Failed to update community.");
@@ -133,7 +133,7 @@ export default function CommunityPage() {
     }
   };
 
-  // --- Render Logic ---
+  
   if (isLoadingDetails) {
     return (
         <div className="container mx-auto py-8">
@@ -266,7 +266,7 @@ export default function CommunityPage() {
                         community={community} 
                         itemCount={items?.length || 0} 
                         onInvite={() => setIsInviteModalOpen(true)}
-                        onEdit={() => setIsEditModalOpen(true)} // <-- Pass handler to mobile too
+                        onEdit={() => setIsEditModalOpen(true)} 
                     />
                   )}
           </aside>

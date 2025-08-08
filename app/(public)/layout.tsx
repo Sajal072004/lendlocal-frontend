@@ -17,7 +17,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
     }
   }, [isAuthenticated, isLoading, router, pathname]);
 
-  // For the landing page, or if the user is not logged in
+  
   if (pathname === '/' || !isAuthenticated) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -30,7 +30,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
     );
   }
 
-  // Show a full-page loader during redirects
+  
   return (
     <div className="flex flex-col min-h-screen">
       <LandingHeader />

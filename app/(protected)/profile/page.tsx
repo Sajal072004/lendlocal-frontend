@@ -11,7 +11,7 @@ import { ItemCard } from '@/components/ItemCard';
 import { Star, Users, UserPlus, Package, Settings } from 'lucide-react';
 import Link from 'next/link';
 
-// You can reuse the RequestCard from the dashboard or create a specific one
+
 interface Request {
     _id: string;
     item: {
@@ -54,7 +54,7 @@ export default function MyProfilePage() {
   };
   
   if (!user) {
-      return <div>Loading profile...</div>; // Or a full-page skeleton
+      return <div>Loading profile...</div>; 
   }
 
   return (

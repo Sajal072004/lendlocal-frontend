@@ -3,16 +3,16 @@
 import { CommunityDetails } from "@/lib/apiService";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users, Package, UserPlus, Edit } from "lucide-react"; // Import Edit icon
+import { Users, Package, UserPlus, Edit } from "lucide-react"; 
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { useAuth } from "@/context/AuthContext"; // Import useAuth to check for owner
+import { useAuth } from "@/context/AuthContext"; 
 
 interface CommunitySidebarProps {
   community: CommunityDetails;
   itemCount: number;
   onInvite: () => void;
-  onEdit: () => void; // Add prop for handling edit action
+  onEdit: () => void; 
 }
 
 export function CommunitySidebar({ community, itemCount, onInvite, onEdit }: CommunitySidebarProps) {

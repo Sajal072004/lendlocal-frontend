@@ -37,7 +37,7 @@ function RequestCard({ request, type, onAction }: { request: BorrowRequest, type
     }
   };
 
-  // Gracefully handle cases where the associated item has been deleted
+  
   if (!request.item) {
     return (
       <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50 opacity-70 cursor-not-allowed">

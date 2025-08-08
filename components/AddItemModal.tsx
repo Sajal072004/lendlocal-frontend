@@ -20,7 +20,7 @@ interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   communityId: string;
-  onItemAdded: () => void; // Callback to refresh the item list
+  onItemAdded: () => void; 
 }
 
 export function AddItemModal({ isOpen, onClose, communityId, onItemAdded }: AddItemModalProps) {
@@ -41,8 +41,8 @@ export function AddItemModal({ isOpen, onClose, communityId, onItemAdded }: AddI
 
     try {
       await createItem(formData);
-      onItemAdded(); // Trigger the refresh
-      onClose(); // Close the modal on success
+      onItemAdded(); 
+      onClose(); 
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const response = err.response as { data?: { message?: string } };

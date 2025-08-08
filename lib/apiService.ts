@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import api from './api';
 import { IUser } from './types';
 
-// --- ADD NOTIFICATION INTERFACE ---
+
 export interface Notification {
   _id: string;
   recipient: string;
@@ -41,7 +41,7 @@ export interface Conversation {
   updatedAt: string;
 }
 
-// --- Types for our data ---
+
 export interface Community {
   _id: string;
   name: string;
@@ -59,7 +59,7 @@ export interface BorrowRequest {
   createdAt: string;
 }
 
-// --- API Functions ---
+
 export const getUserCommunities = async (): Promise<Community[]> => {
   const { data } = await api.get('/communities');
   return data;
@@ -86,11 +86,11 @@ export interface Item {
     name: string;
     profilePicture: string;
   };
-  community: { // <-- ADD THIS
+  community: { 
     _id: string;
     name: string;
   };
-  isMemberOfCommunity: boolean; // <-- ADD THIS
+  isMemberOfCommunity: boolean; 
 }
 
 
@@ -106,7 +106,7 @@ export interface CommunityDetails extends Community {
     isMember:boolean;
 }
 
-// --- New API Functions ---
+
 export const getCommunityDetails = async (communityId: string): Promise<CommunityDetails> => {
   const { data } = await api.get(`/communities/${communityId}`);
   return data;
@@ -117,7 +117,7 @@ export const getCommunityItems = async (communityId: string): Promise<Item[]> =>
   return data;
 };
 
-// --- New API Functions ---
+
 export const getItemDetails = async (itemId: string): Promise<Item> => {
   const { data } = await api.get(`/items/${itemId}`);
   console.log("the response from the backend is ", data);
@@ -129,17 +129,17 @@ export const createBorrowRequest = async (itemId: string): Promise<BorrowRequest
   return data;
 };
 
-// --- New API Function for Creating an Item ---
+
 export const createItem = async (formData: FormData): Promise<Item> => {
   const { data } = await api.post('/items', formData, {
     headers: {
-      'Content-Type': 'multipart/form-data', // Important for file uploads
+      'Content-Type': 'multipart/form-data', 
     },
   });
   return data;
 };
 
-// ... existing types and functions
+
 
 export interface User {
   _id: string;
@@ -175,14 +175,14 @@ export interface Follower {
     }
 }
 
-// --- New API Functions ---
+
 export const getUserProfile = async (userId: string): Promise<PublicUserProfile> => {
   const { data } = await api.get(`/users/${userId}/profile`);
   return data;
 };
 
 export const getUserLentItems = async (userId: string): Promise<Item[]> => {
-    // We need to create this backend endpoint next
+    
     const { data } = await api.get(`/users/${userId}/items`);
     return data;
 };
@@ -192,7 +192,7 @@ export const getUserFollowers = async (userId: string): Promise<Follower[]> => {
     return data;
 }
 
-// --- ADDED FOLLOW/UNFOLLOW FUNCTIONS ---
+
 export const followUser = async (userId: string): Promise<void> => {
   await api.post(`/users/${userId}/follow`);
 };
@@ -200,11 +200,11 @@ export const followUser = async (userId: string): Promise<void> => {
 export const unfollowUser = async (userId: string): Promise<void> => {
     await api.delete(`/users/${userId}/unfollow`);
 };
-// -----------------------------------------
 
-// ... existing functions
 
-// --- New API Functions for Communities ---
+
+
+
 export const createCommunity = async (name: string, description: string): Promise<Community> => {
   const { data } = await api.post('/communities', { name, description });
   return data;
@@ -215,9 +215,9 @@ export const joinCommunity = async (inviteCode: string): Promise<Community> => {
   return data;
 };
 
-// ... existing functions
 
-// --- New API Functions for "My Profile" ---
+
+
 export const getMyBorrowingHistory = async (): Promise<BorrowRequest[]> => {
   const { data } = await api.get('/users/history/borrowed');
   return data;
@@ -238,10 +238,10 @@ export const getMyFollowing = async (userId: string): Promise<Follower[]> => {
     return data;
 }
 
-// ... existing functions
 
-// --- New API Function for Updating "My Profile" ---
-export const updateMyProfile = async (formData: FormData): Promise<User> => { // Assuming User type is defined
+
+
+export const updateMyProfile = async (formData: FormData): Promise<User> => { 
   const { data } = await api.put('/users/profile', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -251,7 +251,7 @@ export const updateMyProfile = async (formData: FormData): Promise<User> => { //
 };
 
 
-// --- ADD NOTIFICATION API FUNCTIONS ---
+
 export const getNotifications = async (): Promise<Notification[]> => {
   const { data } = await api.get('/notifications');
   return data;
@@ -262,14 +262,14 @@ export const markNotificationAsRead = async (notificationId: string): Promise<No
   return data;
 };
 
-// --- ADD SEARCH FUNCTION (if it's not already there) ---
+
 export const searchItems = async (query: string): Promise<Item[]> => {
   const { data } = await api.get('/items/search', { params: { q: query } });
   return data;
 };
 
 
-// --- ADD CHAT API FUNCTIONS ---
+
 export const getConversations = async (): Promise<Conversation[]> => {
   const { data } = await api.get('/chat/conversations');
   return data;
@@ -297,8 +297,8 @@ export const getCommunityInviteCode = async (communityId: string): Promise<strin
 
 
 export type SearchResult = 
-  | { type: 'item'; data: Item } // Assuming Item is already defined
-  | { type: 'community'; data: Community } // Assuming Community is already defined
+  | { type: 'item'; data: Item } 
+  | { type: 'community'; data: Community } 
   | { type: 'user'; data: { _id: string; name: string; profilePicture: string; } };
 
 export const searchAll = async (query: string): Promise<SearchResult[]> => {
@@ -325,7 +325,7 @@ export const confirmReturn = async (requestId: string, review?: { rating: number
   await api.post(`/borrow/requests/${requestId}/confirm-return`, review);
 };
 
-// --- ADD REVIEW INTERFACE AND API FUNCTION ---
+
 export interface Review {
   _id: string;
   rating: number;
@@ -355,12 +355,12 @@ export const getAllItems = async (): Promise<Item[]> => {
 };
 
 
-export const getAllUsers = async (): Promise<IUser[]> => { // Using 'any' for simplicity, can be a specific type
+export const getAllUsers = async (): Promise<IUser[]> => { 
   const { data } = await api.get('/users/all');
   return data;
 };
 
-// --- NEW JOIN REQUEST TYPE ---
+
 export interface JoinRequest {
   _id: string;
   user: {
@@ -371,7 +371,7 @@ export interface JoinRequest {
   status: 'pending' | 'approved' | 'rejected';
 }
 
-// --- API Functions ---
+
 
 export const requestToJoinCommunity = async (communityId: string): Promise<void> => {
   await api.post(`/communities/${communityId}/request-join`);
@@ -390,7 +390,7 @@ export const deleteItem = async (itemId: string): Promise<void> => {
   await api.delete(`/items/${itemId}`);
 };
 
-// --- ADD ITEM REQUEST INTERFACE AND FUNCTIONS ---
+
 export interface IItemRequest {
   _id: string;
   requestedBy: {
@@ -457,7 +457,7 @@ export const updateNotificationPreferences = async (preferences: NotificationPre
   await api.put('/users/profile/notification-preferences', preferences);
 };
 
-// --- ADD THIS NEW API FUNCTION ---
+
 export const updateEmailNotificationPreferences = async (preferences: NotificationPreferences): Promise<void> => {
   await api.put('/users/profile/email-notification-preferences', preferences);
 };

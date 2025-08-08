@@ -54,7 +54,7 @@ export function useItemDetails(itemId: string) {
 }
 
 
-// ... existing hooks
+
 import { getUserProfile, getUserLentItems, getUserFollowers } from './apiService';
 
 export function useUserProfile(userId: string) {
@@ -87,7 +87,7 @@ export function useUserFollowers(userId: string) {
   };
 }
 
-// ... existing hooks
+
 import { getMyBorrowingHistory, getMyLendingHistory, getMyFollowers, getMyFollowing } from './apiService';
 
 export function useMyBorrowingHistory() {
@@ -121,7 +121,7 @@ export function useNotifications() {
   };
 }
 
-// --- ADD CHAT HOOKS ---
+
 export function useConversations() {
   const { data, error, isLoading, mutate } = useSWR('/chat/conversations', getConversations);
   return {

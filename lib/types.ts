@@ -3,10 +3,10 @@ import { NotificationPreferences } from './apiService';
 
 interface IPoint {
   type: 'Point';
-  coordinates: [number, number]; // [longitude, latitude]
+  coordinates: [number, number]; 
 }
 
-// An interface for a structured address
+
 interface IAddress {
   street: string;
   city: string;
@@ -14,7 +14,7 @@ interface IAddress {
   pinCode: string;
 }
 
-// Update the main User interface
+
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId | string; 
   name: string;

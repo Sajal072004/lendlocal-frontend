@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { ArrowLeft, Check, X, User, Calendar, HelpCircle, Undo2, UserCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
-import { RatingModal } from '@/components/RatingModal'; // Import the modal
+import { RatingModal } from '@/components/RatingModal'; 
 
 const StatusBadge = ({ status }: { status: BorrowRequest['status'] }) => {
     const baseClasses = "px-3 py-1 text-xs font-medium rounded-full capitalize whitespace-nowrap";
@@ -79,7 +79,7 @@ export default function BorrowRequestPage() {
   };
   
   const handleReviewSkip = async () => {
-    setIsRatingModalOpen(false); // Close the modal first
+    setIsRatingModalOpen(false); 
     if (ratingAction === 'initiateReturn') {
         try { 
             await initiateReturn(requestId); 

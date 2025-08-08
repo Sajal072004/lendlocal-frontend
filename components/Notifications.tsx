@@ -27,9 +27,9 @@ export function Notifications() {
   useEffect(() => {
     if (socket) {
       socket.on('new_notification', (notification: Notification) => {
-        // Update the notifications list in real-time
+        
         mutate((currentNotifications = []) => [notification, ...currentNotifications], false);
-        // Show a toast notification
+        
         toast.info(notification.message);
       });
 
@@ -43,7 +43,7 @@ export function Notifications() {
     if (!notification.isRead) {
       try {
         await markNotificationAsRead(notification._id);
-        mutate(); // Re-fetch to update the read status
+        mutate(); 
       } catch (error) {
         console.error('Failed to mark notification as read:', error);
       }

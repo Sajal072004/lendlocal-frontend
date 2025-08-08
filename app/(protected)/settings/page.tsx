@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
-// Form values for the profile section, including address
+
 interface ProfileFormValues {
   name: string;
   phoneNumber?: string;
@@ -25,10 +25,10 @@ interface ProfileFormValues {
   };
 }
 
-// Type for the notification form
+
 type NotificationFormValues = EmailNotificationPreferences;
 
-// Helper component for switches to reduce repetition
+
 const NotificationSwitch = ({ form, name, label, description }: { form: UseFormReturn<NotificationFormValues>, name: keyof NotificationFormValues, label: string, description: string }) => (
   <FormField
     control={form.control}
@@ -51,7 +51,7 @@ export default function SettingsPage() {
   const profileForm = useForm<ProfileFormValues>();
   const notificationForm = useForm<NotificationFormValues>();
 
-  // Effect to populate forms when user data is available
+  
   useEffect(() => {
     if (user) {
       profileForm.reset({

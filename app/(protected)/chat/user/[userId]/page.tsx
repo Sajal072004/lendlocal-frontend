@@ -16,13 +16,13 @@ export default function StartChatPage() {
       if (!userId) return;
 
       try {
-        // This API call hits the backend to get the conversation
+        
         const conversation = await startConversation(userId);
-        // Once we have the ID, redirect to the actual chat page
+        
         router.replace(`/chat/${conversation._id}`);
       } catch (error) {
         toast.error("Could not start conversation.");
-        router.replace('/chat'); // Go back to the main chat page on error
+        router.replace('/chat'); 
       }
     };
 

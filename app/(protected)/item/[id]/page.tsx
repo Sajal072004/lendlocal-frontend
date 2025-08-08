@@ -3,7 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useItemDetails } from '@/lib/hooks';
 import { useAuth } from '@/context/AuthContext';
-import { createBorrowRequest, deleteItem } from '@/lib/apiService'; // Import deleteItem
+import { createBorrowRequest, deleteItem } from '@/lib/apiService'; 
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,8 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowLeft, CheckCircle, XCircle, Trash2 } from 'lucide-react'; // Import Trash2 icon
-import { ConfirmationModal } from '@/components/ConfirmationModal'; // Import the modal
+import { ArrowLeft, CheckCircle, XCircle, Trash2 } from 'lucide-react'; 
+import { ConfirmationModal } from '@/components/ConfirmationModal'; 
 import { toast } from 'sonner';
 
 export default function ItemDetailPage() {
@@ -26,7 +26,7 @@ export default function ItemDetailPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [requestStatus, setRequestStatus] = useState<'success' | 'error' | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false); // State for confirmation modal
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false); 
 
   const handleRequestBorrow = async () => {
     setIsSubmitting(true);
@@ -49,11 +49,11 @@ export default function ItemDetailPage() {
   };
 
   const handleDelete = async () => {
-    setIsConfirmOpen(false); // Close the modal first
+    setIsConfirmOpen(false); 
     try {
         await deleteItem(itemId);
         toast.success("Item deleted successfully.");
-        router.push('/dashboard'); // Redirect after deletion
+        router.push('/dashboard'); 
     } catch (error) {
         toast.error("Failed to delete item.");
     }

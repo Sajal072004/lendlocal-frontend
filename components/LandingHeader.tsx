@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext"; // Import useAuth
+import { useAuth } from "@/context/AuthContext"; 
 import { ArrowRight } from "lucide-react";
 
 export function LandingHeader() {
-  const { isAuthenticated } = useAuth(); // Get auth state
+  const { isAuthenticated } = useAuth(); 
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

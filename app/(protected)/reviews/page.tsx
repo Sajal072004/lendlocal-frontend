@@ -24,7 +24,7 @@ const StarRating = ({ rating }: { rating: number }) => (
 const ReviewCard = ({ review }: { review: Review }) => {
   const getInitials = (name: string) => name ? name.substring(0, 2).toUpperCase() : '??';
 
-  // Fallback for deleted items
+  
   if (!review.item) {
     return (
       <Card className="opacity-60">
@@ -104,7 +104,7 @@ const ReviewCard = ({ review }: { review: Review }) => {
 export default function MyReviewsPage() {
   const { reviews, isLoading } = useMyReviews();
   
-  // Filter out reviews where the item has been deleted to prevent rendering issues
+  
   const validReviews = reviews?.filter(review => review.item);
 
   return (

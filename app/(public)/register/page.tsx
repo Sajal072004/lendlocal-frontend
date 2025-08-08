@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 
-// Define a specific type for the form values
+
 type RegisterFormValues = {
   name: string;
   email: string;
@@ -39,14 +39,14 @@ export default function RegisterPage() {
       const response = await register(values);
       setSuccess(response.message || "OTP sent to your email. Please verify.");
       
-      // Redirect to OTP page after a short delay to allow user to read the message
+      
       setTimeout(() => {
-        // We can pass the email to the OTP page via query params
+        
         router.push(`/verify-otp?email=${encodeURIComponent(values.email)}`);
       }, 2000);
 
     } catch (err: unknown) {
-      // Type-safe error handling for Axios errors
+      
       if (err && typeof err === 'object' && 'response' in err) {
         const response = err.response as { data?: { message?: string } };
         setError(response.data?.message || "An unexpected error occurred.");

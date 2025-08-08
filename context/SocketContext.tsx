@@ -27,7 +27,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const heartbeatInterval = useRef<NodeJS.Timeout | null>(null);
   const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Clean up function
+  
   const cleanup = () => {
     if (heartbeatInterval.current) {
       clearInterval(heartbeatInterval.current);
@@ -39,21 +39,21 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Start heartbeat to prevent mobile browser from sleeping the connection
+  
   const startHeartbeat = (socketInstance: Socket) => {
-    cleanup(); // Clear any existing heartbeat
+    cleanup(); 
     
     heartbeatInterval.current = setInterval(() => {
       if (socketInstance && socketInstance.connected) {
         console.log('📱 Sending heartbeat ping');
         socketInstance.emit('ping', { timestamp: Date.now() });
       }
-    }, 25000); // Send ping every 25 seconds
+    }, 25000); 
   };
 
-  // Handle reconnection with delay
+  
   const attemptReconnect = (socketInstance: Socket) => {
-    if (reconnectTimeout.current) return; // Already attempting reconnect
+    if (reconnectTimeout.current) return; 
     
     reconnectTimeout.current = setTimeout(() => {
       if (socketInstance && !socketInstance.connected && isAuthenticated && user?._id) {
@@ -68,44 +68,44 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     if (isAuthenticated && user?._id) {
       console.log('🔌 Initializing socket connection for user:', user._id);
       
-      // Create socket with mobile-optimized configuration
+      
       const newSocket = io(`${backendUrl}`, {
-        // Mobile-friendly transport options
-        transports: ['websocket', 'polling'], // Fallback to polling for mobile
-        upgrade: true, // Allow upgrade to websocket
-        timeout: 10000, // 10 second connection timeout
         
-        // Reconnection settings
+        transports: ['websocket', 'polling'], 
+        upgrade: true, 
+        timeout: 10000, 
+        
+        
         reconnection: true,
-        reconnectionDelay: 1000, // Start with 1 second delay
-        reconnectionDelayMax: 5000, // Max 5 seconds between attempts
+        reconnectionDelay: 1000, 
+        reconnectionDelayMax: 5000, 
         
-        // Keep-alive settings for mobile
-        // pingInterval: 25000, // Server ping interval (not supported in client options)
         
-        // Connection options
-        forceNew: false, // Reuse existing connections
-        rememberUpgrade: true, // Remember the transport upgrade
+        
+        
+        
+        forceNew: false, 
+        rememberUpgrade: true, 
       });
 
-      // Connection event handlers
+      
       newSocket.on('connect', () => {
         console.log('✅ Socket connected:', newSocket.id);
         setIsConnected(true);
         
-        // Join user room for personal notifications
+        
         newSocket.emit('joinUserRoom', user._id.toString());
         
-        // Start heartbeat for mobile browsers
+        
         startHeartbeat(newSocket);
       });
 
       newSocket.on('disconnect', (reason) => {
         console.log('❌ Socket disconnected:', reason);
         setIsConnected(false);
-        cleanup(); // Stop heartbeat
+        cleanup(); 
         
-        // Attempt reconnect if not intentional disconnect
+        
         if (reason !== 'io client disconnect' && reason !== 'io server disconnect') {
           attemptReconnect(newSocket);
         }
@@ -117,12 +117,12 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         attemptReconnect(newSocket);
       });
 
-      // Handle server pong response
+      
       newSocket.on('pong', (data) => {
         console.log('📱 Received pong from server:', data);
       });
 
-      // Reconnection event handlers
+      
       newSocket.on('reconnect', (attemptNumber) => {
         console.log('🔄 Socket reconnected after', attemptNumber, 'attempts');
         setIsConnected(true);
@@ -140,20 +140,20 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
       setSocket(newSocket);
 
-      // Mobile-specific event handlers
+      
       const handleVisibilityChange = () => {
         if (!document.hidden && newSocket) {
-          // App came to foreground
+          
           console.log('📱 App visible - checking socket connection');
           if (!newSocket.connected) {
             console.log('📱 Reconnecting socket after visibility change');
             newSocket.connect();
           } else {
-            // Restart heartbeat when app becomes visible
+            
             startHeartbeat(newSocket);
           }
         } else {
-          // App went to background - cleanup heartbeat
+          
           cleanup();
         }
       };
@@ -176,7 +176,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
       const handleOffline = () => {
         console.log('📱 Network offline');
-        cleanup(); // Stop heartbeat when offline
+        cleanup(); 
       };
 
       const handleBeforeUnload = () => {
@@ -186,39 +186,39 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         }
       };
 
-      // Add mobile-specific event listeners
+      
       document.addEventListener('visibilitychange', handleVisibilityChange);
       window.addEventListener('focus', handleFocus);
       window.addEventListener('online', handleOnline);
       window.addEventListener('offline', handleOffline);
       window.addEventListener('beforeunload', handleBeforeUnload);
 
-      // Cleanup function
+      
       return () => {
         console.log('🧹 Cleaning up socket connection');
         cleanup();
         
-        // Remove event listeners
+        
         document.removeEventListener('visibilitychange', handleVisibilityChange);
         window.removeEventListener('focus', handleFocus);
         window.removeEventListener('online', handleOnline);
         window.removeEventListener('offline', handleOffline);
         window.removeEventListener('beforeunload', handleBeforeUnload);
         
-        // Disconnect socket
+        
         newSocket.disconnect();
       };
     } else if (!isAuthenticated && socket) {
-      // If user logs out, disconnect the socket
+      
       console.log('👋 User logged out - disconnecting socket');
       cleanup();
       socket.disconnect();
       setSocket(null);
       setIsConnected(false);
     }
-  }, [isAuthenticated, user?._id]); // Only depend on auth state and user ID
+  }, [isAuthenticated, user?._id]); 
 
-  // Additional cleanup on unmount
+  
   useEffect(() => {
     return () => {
       cleanup();

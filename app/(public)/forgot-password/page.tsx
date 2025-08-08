@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
     try {
       await forgotPassword(data.email);
       toast.success("If an account with that email exists, a reset code has been sent.");
-      // Redirect to the reset page, passing the email as a query parameter
+      
       router.push(`/reset-password?email=${encodeURIComponent(data.email)}`);
     } catch (error) {
       toast.error("Failed to send reset code. Please try again later.");
