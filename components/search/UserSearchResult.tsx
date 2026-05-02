@@ -4,6 +4,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 interface UserResult {
   _id: string;
   name: string;
+  email: string;
+  username?: string;
   profilePicture?: string;
 }
 
@@ -22,7 +24,7 @@ export function UserSearchResult({ user }: { user: UserResult }) {
       </Avatar>
       <div className="flex-1">
         <p className="font-semibold">{user.name}</p>
-        <p className="text-sm text-muted-foreground">User</p>
+        <p className="text-sm text-muted-foreground">{user.username ? `@${user.username}` : user.email}</p>
       </div>
     </Link>
   );

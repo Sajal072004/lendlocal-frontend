@@ -6,28 +6,49 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
-import { ShieldCheck, Lock } from "lucide-react";
+import { ShieldCheck, Lock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import api from "@/lib/api";
 
 type RegisterFormValues = {
   name: string;
+  username: string;
   email: string;
   password: string;
   aadhaarNumber?: string;
   panNumber?: string;
 };
 
+type UsernameStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
+
 export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>('idle');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { register } = useAuth();
   const router = useRouter();
 
+  const checkUsername = (value: string) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!value || value.length < 3) { setUsernameStatus('idle'); return; }
+    if (!/^[a-z0-9_]{3,20}$/.test(value)) { setUsernameStatus('invalid'); return; }
+    setUsernameStatus('checking');
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await api.get(`/auth/check-username?username=${value}`);
+        setUsernameStatus(res.data.available ? 'available' : 'taken');
+      } catch {
+        setUsernameStatus('idle');
+      }
+    }, 500);
+  };
+
   const form = useForm<RegisterFormValues>({
-    defaultValues: { name: "", email: "", password: "", aadhaarNumber: "", panNumber: "" },
+    defaultValues: { name: "", username: "", email: "", password: "", aadhaarNumber: "", panNumber: "" },
   });
 
   const onSubmit = async (values: RegisterFormValues) => {
@@ -67,6 +88,42 @@ export default function RegisterPage() {
                   <FormItem className="sm:col-span-2">
                     <FormLabel>Full Name</FormLabel>
                     <FormControl><Input placeholder="John Doe" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="username"
+                rules={{
+                  required: 'Username is required',
+                  pattern: { value: /^[a-z0-9_]{3,20}$/, message: 'Must be 3-20 characters: letters, numbers, underscores only' },
+                  validate: () => usernameStatus === 'taken' ? 'Username is already taken' : true,
+                }}
+                render={({ field }) => (
+                  <FormItem className="sm:col-span-2">
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          placeholder="your_handle"
+                          {...field}
+                          onChange={e => {
+                            const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+                            field.onChange(val);
+                            checkUsername(val);
+                          }}
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          {usernameStatus === 'checking' && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                          {usernameStatus === 'available' && <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                          {usernameStatus === 'taken' && <XCircle className="h-4 w-4 text-destructive" />}
+                        </div>
+                      </div>
+                    </FormControl>
+                    {usernameStatus === 'available' && <p className="text-xs text-green-600">Username is available</p>}
+                    {usernameStatus === 'taken' && <p className="text-xs text-destructive">Username is already taken</p>}
+                    {usernameStatus === 'idle' && <p className="text-xs text-muted-foreground">Letters, numbers and underscores only</p>}
                     <FormMessage />
                   </FormItem>
                 )}

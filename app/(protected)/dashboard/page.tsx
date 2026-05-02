@@ -14,6 +14,7 @@ import Link from "next/link";
 import { PlusCircle, ChevronRight, Inbox, MessageSquare, Truck } from "lucide-react";
 import { CommunityActionModal } from '@/components/CommunityActionModal';
 import { ConversationCard } from '@/components/ConversationCard';
+import { ShieldCheck } from 'lucide-react';
 
 function EmptyState({ title, description }: { title: string, description: string }) {
   return (
@@ -98,6 +99,16 @@ export default function DashboardPage() {
       />
 
       <div className="space-y-8">
+        {!user?.kycCompleted && (
+          <Link href="/complete-kyc" className="flex items-center gap-3 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 px-4 py-3 hover:bg-blue-100 dark:hover:bg-blue-950/60 transition-colors">
+            <ShieldCheck className="h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">Complete your identity verification</p>
+              <p className="text-xs text-blue-600 dark:text-blue-400">Verified members get 3× more borrow approvals. Add Aadhaar &amp; PAN — takes 30 seconds.</p>
+            </div>
+            <span className="text-xs font-medium text-blue-600 dark:text-blue-400 shrink-0">Verify now →</span>
+          </Link>
+        )}
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
             Welcome back, {user?.name}!

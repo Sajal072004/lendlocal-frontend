@@ -23,6 +23,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Link from 'next/link';
 import { EditCommunityModal } from '@/components/EditCommunityModal';
+import { TrendingItems } from '@/components/TrendingItems';
 
 
 const JoinRequestCard = ({ request, onRespond }: { request: IJoinRequest, onRespond: (id: string, response: 'approve' | 'reject') => void }) => (
@@ -202,6 +203,8 @@ export default function CommunityPage() {
                 <Button onClick={() => setIsAddItemModalOpen(true)} className="flex-1"><PlusCircle className="mr-2 h-4 w-4" /> Add Item</Button>
               </div>
             </div>
+
+            <TrendingItems communityId={communityId} />
 
             <Tabs defaultValue="items">
               <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:grid-cols-[auto_auto_auto]">

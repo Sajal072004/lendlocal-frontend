@@ -17,6 +17,7 @@ import Link from 'next/link';
 
 interface ProfileFormValues {
   name: string;
+  username?: string;
   phoneNumber?: string;
   profilePicture?: FileList;
   address?: {
@@ -53,6 +54,7 @@ export default function SettingsPage() {
   const profileForm = useForm<ProfileFormValues>({
     defaultValues: {
       name: '',
+      username: '',
       phoneNumber: '',
       address: { street: '', city: '', state: '', pinCode: '' },
     },
@@ -78,6 +80,7 @@ export default function SettingsPage() {
     if (user) {
       profileForm.reset({
         name: user.name,
+        username: user.username || '',
         phoneNumber: user.phoneNumber || '',
         address: {
           street: user.address?.street || '',
@@ -93,6 +96,7 @@ export default function SettingsPage() {
   const onProfileSubmit = async (values: ProfileFormValues) => {
     const formData = new FormData();
     formData.append('name', values.name);
+    if (values.username) formData.append('username', values.username);
     if(values.phoneNumber) formData.append('phoneNumber', values.phoneNumber);
     if(values.address?.street) formData.append('address[street]', values.address.street);
     if(values.address?.city) formData.append('address[city]', values.address.city);
@@ -150,6 +154,25 @@ export default function SettingsPage() {
               <CardContent className="space-y-6">
                 <FormField control={profileForm.control} name="profilePicture" render={({ field }) => ( <FormItem className="flex items-center gap-6"><Avatar className="h-20 w-20"><AvatarImage src={user?.profilePicture} /><AvatarFallback className="text-2xl">{getInitials(user?.name)}</AvatarFallback></Avatar><div className="flex-grow"><FormLabel>Profile Picture</FormLabel><FormControl><Input type="file" accept="image/*" {...profileForm.register("profilePicture")} /></FormControl><FormMessage /></div></FormItem> )} />
                 <FormField control={profileForm.control} name="name" render={({ field }) => ( <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your full name" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                <FormField
+                  control={profileForm.control}
+                  name="username"
+                  rules={{ pattern: { value: /^[a-z0-9_]{3,20}$/i, message: 'Must be 3-20 characters: letters, numbers, underscores only' } }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="@your_handle"
+                          {...field}
+                          onChange={e => field.onChange(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                        />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">Letters, numbers and underscores only</p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField control={profileForm.control} name="phoneNumber" render={({ field }) => ( <FormItem><FormLabel>Phone Number (Optional)</FormLabel><FormControl><Input placeholder="Your phone number" {...field} /></FormControl><FormMessage /></FormItem> )} />
               </CardContent>
             </Card>

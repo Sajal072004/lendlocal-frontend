@@ -12,7 +12,7 @@ export function ItemSearchResult({ item }: { item: Item }) {
       </Avatar>
       <div className="flex-1">
         <p className="font-semibold">{item.name}</p>
-        <p className="text-sm text-muted-foreground">Item owned by {item.owner.name}</p>
+        <p className="text-sm text-muted-foreground">Item owned by {item.owner?.name ?? 'Unknown'}</p>
       </div>
     </Link>
   );

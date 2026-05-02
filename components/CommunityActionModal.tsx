@@ -28,8 +28,8 @@ interface CommunityActionModalProps {
 
 export function CommunityActionModal({ isOpen, onClose, onCommunityAction }: CommunityActionModalProps) {
   const [error, setError] = useState<string | null>(null);
-  const createForm = useForm<CreateCommunityFormValues>();
-  const joinForm = useForm<JoinCommunityFormValues>();
+  const createForm = useForm<CreateCommunityFormValues>({ defaultValues: { name: '', description: '' } });
+  const joinForm = useForm<JoinCommunityFormValues>({ defaultValues: { inviteCode: '' } });
 
   const handleCreateSubmit = async (values: CreateCommunityFormValues) => {
     setError(null);

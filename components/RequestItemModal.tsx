@@ -19,7 +19,7 @@ interface RequestItemModalProps {
 }
 
 export function RequestItemModal({ isOpen, onClose, onSubmit }: RequestItemModalProps) {
-  const form = useForm<RequestItemFormValues>();
+  const form = useForm<RequestItemFormValues>({ defaultValues: { itemName: '', description: '' } });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

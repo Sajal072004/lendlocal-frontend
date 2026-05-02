@@ -18,6 +18,7 @@ interface IAddress {
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId | string; 
   name: string;
+  username?: string;
   email: string;
   password?: string;
   reputationScore: number;

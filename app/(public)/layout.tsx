@@ -12,13 +12,13 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated && pathname !== '/') {
+    if (!isLoading && isAuthenticated && pathname !== '/' && pathname !== '/complete-kyc') {
       router.push('/dashboard');
     }
   }, [isAuthenticated, isLoading, router, pathname]);
 
   
-  if (pathname === '/' || !isAuthenticated) {
+  if (pathname === '/' || pathname === '/complete-kyc' || !isAuthenticated) {
     return (
       <div className="flex flex-col min-h-screen">
         <LandingHeader />
