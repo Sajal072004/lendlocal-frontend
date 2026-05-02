@@ -82,7 +82,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const handleAuthCallback = async (token: string) => {
     localStorage.setItem('token', token);
     await checkSession();
-    router.push('/dashboard');
+    const sessionRes = await api.get('/auth/session');
+    const u = sessionRes.data.user;
+    if (u && !u.kycCompleted) {
+      router.push('/complete-kyc');
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   const logout = async () => {

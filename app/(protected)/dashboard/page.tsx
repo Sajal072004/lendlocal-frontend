@@ -11,7 +11,7 @@ import { respondToRequest, BorrowRequest } from "@/lib/apiService";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from 'next/image';
 import Link from "next/link";
-import { PlusCircle, ChevronRight, Inbox, MessageSquare } from "lucide-react";
+import { PlusCircle, ChevronRight, Inbox, MessageSquare, Truck } from "lucide-react";
 import { CommunityActionModal } from '@/components/CommunityActionModal';
 import { ConversationCard } from '@/components/ConversationCard';
 
@@ -105,6 +105,24 @@ export default function DashboardPage() {
           <p className="text-muted-foreground mt-2">
             Here&apos;s an overview of your communities and active requests.
           </p>
+        </div>
+
+        {/* Porter delivery banner */}
+        <div className="rounded-xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 dark:border-orange-800 dark:from-orange-950/40 dark:to-amber-950/40 px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="rounded-full bg-orange-100 dark:bg-orange-900 p-3 shrink-0">
+            <Truck className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-orange-900 dark:text-orange-200 text-sm">
+              Delivery via Porter — Coming Soon 🚚
+            </p>
+            <p className="text-xs text-orange-700 dark:text-orange-400 mt-0.5">
+              Can&apos;t meet in person? We&apos;re integrating Porter for same-day doorstep delivery across your city. View details on any item page.
+            </p>
+          </div>
+          <span className="shrink-0 text-xs font-medium bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2.5 py-1 rounded-full border border-orange-200 dark:border-orange-700">
+            In Progress
+          </span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">

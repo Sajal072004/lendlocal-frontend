@@ -11,6 +11,8 @@ import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { DigioBanner } from '@/components/DigioBanner';
+import Link from 'next/link';
 
 
 interface ProfileFormValues {
@@ -48,8 +50,28 @@ const NotificationSwitch = ({ form, name, label, description }: { form: UseFormR
 export default function SettingsPage() {
   const { user, checkSession } = useAuth();
   
-  const profileForm = useForm<ProfileFormValues>();
-  const notificationForm = useForm<NotificationFormValues>();
+  const profileForm = useForm<ProfileFormValues>({
+    defaultValues: {
+      name: '',
+      phoneNumber: '',
+      address: { street: '', city: '', state: '', pinCode: '' },
+    },
+  });
+  const notificationForm = useForm<NotificationFormValues>({
+    defaultValues: {
+      new_borrow_request: true,
+      request_approved: true,
+      request_denied: true,
+      item_returned: true,
+      return_confirmed: true,
+      new_join_request: true,
+      new_item_request: true,
+      new_offer: true,
+      offer_accepted: true,
+      new_follower: true,
+      new_message: false,
+    },
+  });
 
   
   useEffect(() => {
@@ -154,6 +176,9 @@ export default function SettingsPage() {
           </form>
         </Form>
         
+        {/* --- Identity Verification --- */}
+        <DigioBanner variant="full" kycCompleted={user?.kycCompleted ?? false} />
+
         {/* --- Email Notifications Card and Form --- */}
         <Form {...notificationForm}>
           <form onSubmit={notificationForm.handleSubmit(onNotificationSubmit)}>

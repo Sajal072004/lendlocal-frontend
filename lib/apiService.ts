@@ -461,3 +461,7 @@ export const updateNotificationPreferences = async (preferences: NotificationPre
 export const updateEmailNotificationPreferences = async (preferences: NotificationPreferences): Promise<void> => {
   await api.put('/users/profile/email-notification-preferences', preferences);
 };
+
+export const saveKyc = async (data: { aadhaarNumber: string; panNumber: string }): Promise<void> => {
+  await api.post('/auth/kyc', data);
+};

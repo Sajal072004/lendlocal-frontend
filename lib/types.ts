@@ -30,6 +30,7 @@ export interface IUser extends Document {
   isDisabled: boolean; 
   phoneNumber?: string; 
   address?: IAddress;
+  kycCompleted: boolean;
   notificationPreferences: NotificationPreferences;
   emailNotificationPreferences: NotificationPreferences;
 }

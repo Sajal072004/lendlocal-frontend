@@ -13,7 +13,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { ArrowLeft, CheckCircle, XCircle, Trash2 } from 'lucide-react'; 
-import { ConfirmationModal } from '@/components/ConfirmationModal'; 
+import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { PorterDeliverySection } from '@/components/PorterDeliverySection';
 import { toast } from 'sonner';
 
 export default function ItemDetailPage() {
@@ -155,7 +156,7 @@ export default function ItemDetailPage() {
             </div>
             
             {/* Action Button */}
-            <div className="pt-4">
+            <div className="pt-4 space-y-3">
               {isOwner ? (
                 <Button disabled className="w-full">This is your item</Button>
               ) : item.availabilityStatus === 'borrowed' ? (
@@ -165,21 +166,23 @@ export default function ItemDetailPage() {
                   {isSubmitting ? 'Sending Request...' : 'Request to Borrow'}
                 </Button>
               )}
+
+              {/* Success/Error Messages */}
+              {requestStatus === 'success' && (
+                <div className="flex items-center gap-2 text-green-600">
+                  <CheckCircle className="h-5 w-5" />
+                  <p>Request sent successfully! The owner has been notified.</p>
+                </div>
+              )}
+              {requestStatus === 'error' && (
+                <div className="flex items-center gap-2 text-destructive">
+                  <XCircle className="h-5 w-5" />
+                  <p>{errorMessage}</p>
+                </div>
+              )}
             </div>
-            
-            {/* Success/Error Messages */}
-            {requestStatus === 'success' && (
-              <div className="flex items-center gap-2 text-green-600">
-                <CheckCircle className="h-5 w-5" />
-                <p>Request sent successfully! The owner has been notified.</p>
-              </div>
-            )}
-            {requestStatus === 'error' && (
-               <div className="flex items-center gap-2 text-destructive">
-                <XCircle className="h-5 w-5" />
-                <p>{errorMessage}</p>
-              </div>
-            )}
+
+            <PorterDeliverySection />
           </div>
         </div>
       </div>

@@ -23,7 +23,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <div className="flex flex-col min-h-screen">
         <LandingHeader />
         {/* This main section will now correctly center the login/register cards */}
-        <main className="flex-1 flex items-center justify-center bg-muted/40 p-4">
+        <main className="flex-1 flex items-center justify-center bg-muted/40 p-4 md:p-8">
           {children}
         </main>
       </div>
